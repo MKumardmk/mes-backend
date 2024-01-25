@@ -460,7 +460,13 @@ class FurnaceConfigStepListAPIView(APIView):
                 else:
                     plant_model.Additives.objects.create(furnace_config_step=furnace_config_step, **additive_data)
         return Response({"message":"SuccessFully Updated"})
-
+    def delete(self,request,furnace_id=None):
+        try:
+            furnace_step=plant_model.FurnaceConfigStep.objects.filter(pk=furnace_id).first()
+            furnace_step.delete()
+        except AttributeError :
+            pass
+        return Response({"message":"Item Deleted SuccessFully",})
 # class FurnaceConfigStepListAPIView(generics.ListCreateAPIView):
 #     serializer_class = se.FurnaceConfigStepSerializer
 

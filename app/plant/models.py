@@ -330,6 +330,9 @@ class FurnaceConfigStep(models.Model):
     step=models.CharField(max_length=10)
     order=models.SmallIntegerField()
     record_status = models.BooleanField(default=True)
+
+    def __str__(self) -> str:
+        return self.step
     
     class Meta:
         ordering=['-order']
