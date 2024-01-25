@@ -262,7 +262,7 @@ class FurnaceConfigView(APIView):
             for product in item['products']:
                 product_type = product['productType']['value']
                 product_code = product['productCode']['value']
-                new_item = {'product_state': product_state, 'product_type': product_type, 'product_code': product_code}
+                new_item = {'product_state_id': product_state, 'product_type_id': product_type, 'product_code': product_code}
                 new_product_data_json.append(new_item)
 
         if serializer.is_valid():
