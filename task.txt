@@ -1,0 +1,14 @@
+deactivate furnace api
+furnace listing api plant_id
+furnace detail api  primary key
+furnace create 
+furnace update primary
+
+
+
+furnace post tab 1 => return the id
+
+
+
+
+store the order in second tab in furnace
