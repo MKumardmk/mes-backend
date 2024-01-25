@@ -395,7 +395,7 @@ class FurnaceConfigStepListAPIView(APIView):
         data=request.data.get('step_data')
 
         output_data = []
-
+        ids=[]
         for item in data:
             transformed_item = {
                 "id":item.get('id', None),
@@ -428,6 +428,7 @@ class FurnaceConfigStepListAPIView(APIView):
 
         for index,item in enumerate(output_data,start=1):
             pk_id = item.get('id', None)
+            if pk_id:ids.append(pk_id)
             print("item",item,pk_id)
             #   order = item.pop('order', 0)
             control_parameters=  item.pop('control_parameters', [])
@@ -459,6 +460,8 @@ class FurnaceConfigStepListAPIView(APIView):
                     plant_model.Additives.objects.filter(furnace_config_step=furnace_config_step,pk=id).update(**additive_data)
                 else:
                     plant_model.Additives.objects.create(furnace_config_step=furnace_config_step, **additive_data)
+        print(ids,"ids in put")
+        plant_model.FurnaceConfigStep.objects.filter(furnace_id=furnace_id).exclude(id__in=ids).delete()
         return Response({"message":"SuccessFully Updated"})
     def delete(self,request,furnace_id=None):
         try:
