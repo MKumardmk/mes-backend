@@ -213,12 +213,8 @@ class FurnaceConfigSerializer(serializers.ModelSerializer):
     
 
     def create(self, validated_data):
-        furnace_products_data = validated_data.pop('furnace_products', [])
-
+        print(validated_data,"validated data in serializer")
         furnace_config = FurnaceConfig.objects.create(**validated_data)
-        for furnace_product_data in furnace_products_data:
-            FurnaceProduct.objects.create(furnace_config=furnace_config, **furnace_product_data)
-
         return furnace_config
     
     def update(self, instance, validated_data):

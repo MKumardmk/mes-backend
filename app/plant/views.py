@@ -240,17 +240,18 @@ class FurnaceConfigView(APIView):
 
     def post(self, request,plant_id=None, pk=None):
         data=request.data
+        # print(request.data,"data in post furnace ")
         electrode_data_json=data.pop('electrodes')
         product_data_json=data.pop('products')
-        serializer = FurnaceConfigSerializer(data=request.data)
+        # serializer = FurnaceConfigSerializer(data=request.data)
         key_mappings = {
-    'type': 'type_name',
-    'core': 'core_id',
-    'coreMassLength': 'core_mass_length',
-    'paste': 'paste_id',
-    'pasteMassLength': 'paste_mass_length',
-    'casing': 'casing_id',
-    'casingMassLength': 'casing_mass_length'
+        'type': 'type_name',
+        'core': 'core_id',
+        'coreMassLength': 'core_mass_length',
+        'paste': 'paste_id',
+        'pasteMassLength': 'paste_mass_length',
+        'casing': 'casing_id',
+        'casingMassLength': 'casing_mass_length'
 }
         new_electrode_data_json = [change_key_names(item, key_mappings) for item in electrode_data_json]
 
@@ -264,19 +265,22 @@ class FurnaceConfigView(APIView):
                 product_code = product['productCode']['value']
                 new_item = {'product_state_id': product_state, 'product_type_id': product_type, 'product_code': product_code}
                 new_product_data_json.append(new_item)
+        # print(new_product_data_json,'new_product_data_json')
+        # print(new_electrode_data_json,'new_electrode_data_json')
+        # if serializer.is_valid():
+        workshop_id=data.pop('workshop',None)
+        furnace_config=plant_model.FurnaceConfig.objects.create(workshop_id=workshop_id,**data)
+            # furnace_config = serializer.save(power_delivery_id=request.data['power_delivery_id'],electrode_type_)
+        for electrode_data_json in new_electrode_data_json:
+            data_json = {}
+            for key,value in electrode_data_json.items():
+                if value  : data_json[key] = value
+            FurnaceElectrode.objects.create(furnace_config=furnace_config,**data_json,created_by=1,electrode_type_id=data.get('electrode_type_id'))
+        for furnace_product in new_product_data_json:
+            FurnaceProduct.objects.create(furnace_config=furnace_config,**furnace_product,created_by=1)
+        return Response({"message":"Furnace added Successfully","id":furnace_config.id}, status=status.HTTP_201_CREATED)
 
-        if serializer.is_valid():
-            furnace_config = serializer.save()
-            for electrode_data_json in new_electrode_data_json:
-                data_json = {}
-                for key,value in electrode_data_json.items():
-                    if value  : data_json[key] = value
-                FurnaceElectrode.objects.create(furnace_config=furnace_config,**data_json,created_by=1,electrode_type_id=data.get('electrode_type_id'))
-            for furnace_product in new_product_data_json:
-                FurnaceProduct.objects.create(furnace_config=furnace_config,**furnace_product,created_by=1)
-            return Response({"message":"Furnace added Successfully","id":furnace_config.id}, status=status.HTTP_201_CREATED)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     def put(self, request, pk=None, *args, **kwargs):
         data=request.data
         furnace_electrode_data=data.pop('electrodes')
