@@ -121,19 +121,18 @@ class FurnaceElectrodeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_core(self,obj):
-        return obj.core.id
+        return getattr(obj.core, 'id', None)
     def get_core_value(self,obj):
-        return obj.core.value
-    
+        return getattr(obj.core, 'value', None)
     def get_paste(self,obj):
-        return obj.paste.id
+        return getattr(obj.paste, 'id', None)
     def get_paste_value(self,obj):
-        return obj.paste.value
+        return getattr(obj.paste, 'value', None)
     
     def get_casing(self,obj):
-        return obj.casing.id
+        return getattr(obj.casing, 'id', None)
     def get_casing_value(self,obj):
-        return obj.casing.value
+        return getattr(obj.casing, 'value', None)
 
         
 
@@ -148,13 +147,13 @@ class FurnaceProductSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_product_type(self,obj):
-        return obj.product_type.id
+        return getattr(obj.product_type, 'id', None)
     def get_product_type_value(self,obj):
-        return obj.product_type.value
+        return getattr(obj.product_type, 'value', None)
     def get_product_state_value(self,obj):
-        return obj.product_state.value
+        return getattr(obj.product_state, 'value', None)
     def get_product_state(self,obj):
-        return obj.product_state.id
+        return getattr(obj.product_state, 'id', None)
 
 
 
