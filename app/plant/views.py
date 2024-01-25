@@ -285,19 +285,19 @@ class FurnaceConfigView(APIView):
         data=request.data
         furnace_electrode_data=data.pop('electrodes')
         furnace_product_data=data.pop('products')
-        furnace_config = self.get_object(pk)
+        furnace_config = FurnaceConfig.objects.get(pk=pk)
         serializer = FurnaceConfigSerializer(furnace_config, data=request.data)
 
         key_mappings = {
             'id':'id',
-    'type': 'type_name',
-    'core': 'core_id',
-    'coreMassLength': 'core_mass_length',
-    'paste': 'paste_id',
-    'pasteMassLength': 'paste_mass_length',
-    'casing': 'casing_id',
-    'casingMassLength': 'casing_mass_length'
-}
+            'type': 'type_name',
+            'core': 'core_id',
+            'coreMassLength': 'core_mass_length',
+            'paste': 'paste_id',
+            'pasteMassLength': 'paste_mass_length',
+            'casing': 'casing_id',
+            'casingMassLength': 'casing_mass_length'
+        }
         new_electrode_data_json = [change_key_names(item, key_mappings) for item in furnace_electrode_data]
 
         new_product_data_json = []
@@ -311,15 +311,15 @@ class FurnaceConfigView(APIView):
                 product_type = product['productType']['value']
                 product_code = product['productCode']['value']
                 record_status = product.get('record_status', True)
-                new_item = {'id':id,'product_state': product_state, 'product_type': product_type, 'product_code': product_code, 'record_status':record_status}
+                new_item = {'id':id,'product_state_id': product_state, 'product_type_id': product_type, 'product_code': product_code, 'record_status':record_status}
                 new_product_data_json.append(new_item)
 
         if serializer.is_valid():
             furnace_config=serializer.save()
             for furnace_electrode in new_electrode_data_json:
                 FurnaceElectrode.objects.filter(pk=furnace_electrode.pop('id'),furnace_config=furnace_config).update(**furnace_electrode)
-            for product_data in furnace_product_data:
-                if product_data['id']:
+            for product_data in new_product_data_json:
+                if product_data.get('id',None):
                     FurnaceProduct.objects.filter(pk=product_data.pop('id'),furnace_config=furnace_config).update(**product_data)
                 else:
                     FurnaceProduct.objects.create(furnace_config=furnace_config,**product_data,created_by=1)
