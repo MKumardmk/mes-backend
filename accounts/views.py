@@ -38,10 +38,10 @@ class SimpleUserLoginView(APIView):
                 
                 status_code = status.HTTP_200_OK
                 serializer = se.UserDetailSerializer(user, context={"request": request})
-                data={**serializer.data}
-                data['token']=token.key
+                response["user"] = serializer.data
+                response["message"] = "Login successfully"
                 
-                return Response(data, status=status_code)
+                return Response(re, status=status_code)
            else:
                return Response({"message": "Password is not correct"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
