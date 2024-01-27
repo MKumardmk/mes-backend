@@ -13,13 +13,13 @@ class RoleSerializer(serializers.ModelSerializer):
         request=self.context.get('request',None)
         permission_list = request.data.get("permission_list")
 
-        for module_name, permissions_data in permission_list.items():
+        for  permissions in permission_list:
             models.RolePermission.objects.create(
-                function_id=permissions_data.get('function_id'),
+                function_id=permissions.get('function_id'),
                 role=role,
-                view=permissions_data.get('view', False),
-                create=permissions_data.get('create', False),
-                edit=permissions_data.get('edit', False),
+                view=permissions.get('view', False),
+                create=permissions.get('create', False),
+                edit=permissions.get('edit', False),
                 created_by_id=1
                     )
 
