@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import TimeZone,Language,Unit,Currency,Product,Function,ERP,PlantConfig, PlantConfigProduct, PlantConfigWorkshop,FurnaceConfig,FurnaceProduct
+from .models import TimeZone,Language,Unit,Currency,Product,Function,ERP,PlantConfig, PlantConfigProduct, PlantConfigWorkshop,FurnaceConfig,FurnaceProduct,PlantConfigFunction
 from . import models as m
 
 from app.master.serializers import MasterSerializer
@@ -49,11 +49,16 @@ class PlantConfigWorkshopSerializer(serializers.ModelSerializer):
         model = PlantConfigWorkshop
         fields = '__all__'
 
+class PlantConfigFunctionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PlantConfigFunction
+        fields = '__all__'
+
 
 class PlantConfigSerializer(serializers.ModelSerializer):
     products_json = PlantConfigProductSerializer(many=True,read_only=True,source="plant_config_products")
     workshops_json = PlantConfigWorkshopSerializer(many=True,read_only=True,source="plant_config_workshops")
-    # function_json = serializers.ListField(many=True,read_only=True)
+    function_json = PlantConfigFunctionSerializer(many=True,read_only=True,source="plant_config_function")
     
     class Meta:
         model = PlantConfig

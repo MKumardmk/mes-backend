@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
-from .models import TimeZone,Language,Unit,Currency,Product,Function,ERP,PlantConfig,FurnaceConfig,PlantConfigProduct,PlantConfigWorkshop,FurnaceElectrode,FurnaceProduct
+from .models import TimeZone,Language,Unit,Currency,Product,Function,ERP,PlantConfig,FurnaceConfig,PlantConfigProduct,PlantConfigWorkshop,FurnaceElectrode,FurnaceProduct,PlantConfigFunction
 from .serializers import TimeZoneSerializer,LanguageSerializer,UnitSerializer,CurrencySerializer,ProductSerializer,FunctionSerializer,ERPSerializer,PlantConfigSerializer,FurnaceConfigSerializer
 from rest_framework import status ,viewsets ,generics 
 import json
@@ -175,9 +175,9 @@ class PlantConfigView(APIView):
         #     serializer = PlantConfigSerializer(plant_configs, many=True)
     def post(self,request,pk=None):
         data= request.data
-        plant_config_products=data.pop('products_json')
-        plant_config_workshops=data.pop('workshops_json')
-        function_json=data.pop('function_json')
+        plant_config_products=data.pop('productName')
+        plant_config_workshops=data.pop('workshops')
+        function_json=data.pop('function')
         serializer = PlantConfigSerializer(data=data)
         if serializer.is_valid():
             plant_config=serializer.save()
@@ -197,9 +197,9 @@ class PlantConfigView(APIView):
     
     def put(self, request, pk=None):
         data=request.data
-        plant_config_products=data.pop('products_json')
-        plant_config_workshops=data.pop('workshops_json')
-        plant_functions=data.pop('function_json')
+        plant_config_products=data.pop('productName')
+        plant_config_workshops=data.pop('workshops')
+        plant_functions=data.pop('function')
         plant_config = self.get_object(pk=pk)
         print(request.data['plant_name'])
         serializer = PlantConfigSerializer(plant_config, data=request.data,partial=True)
@@ -210,7 +210,7 @@ class PlantConfigView(APIView):
             for plant_workshop in plant_config_workshops:
                 PlantConfigWorkshop.objects.filter(pk=plant_workshop.pop('id'),plant_config=plant_config).update(**plant_workshop)
             for plant_function in plant_functions:
-                PlantConfigWorkshop.objects.filter(pk=plant_workshop.pop('id'),plant_config=plant_config).update(**plant_function)
+                PlantConfigFunction.objects.filter(pk=plant_function.pop('id'),plant_config=plant_config).update(**plant_function)
             
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
