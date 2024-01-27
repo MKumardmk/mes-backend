@@ -1,10 +1,16 @@
 from rest_framework import serializers
 from . import models
 
+from app.master.models import FunctionMaster,ModuleMaster
+
 class RoleSerializer(serializers.ModelSerializer):
+
+    total_functions=serializers.SerializerMethodField()
     class Meta:
         model = models.Role
         fields = '__all__'
+    def get_total_functions(self,obj):
+        pass
 
 
     def create(self, validated_data):
@@ -14,8 +20,9 @@ class RoleSerializer(serializers.ModelSerializer):
         permission_list = request.data.get("permission_list")
 
         for  permissions in permission_list:
+            
             models.RolePermission.objects.create(
-                function_id=permissions.get('function_id'),
+                function_master_id=permissions.get('function_master_id'),
                 role=role,
                 view=permissions.get('view', False),
                 create=permissions.get('create', False),
@@ -34,24 +41,26 @@ class RolePermissionSerializer(serializers.ModelSerializer):
 
 
 class UserDetailSerializer(serializers.ModelSerializer[models.User]):
-    user_roles = RoleSerializer(many=True, read_only=True, )
-    user_permissions = RolePermissionSerializer(many=True, read_only=True,)
+    # user_roles = RoleSerializer(many=True, read_only=True, )
+    # user_permissions = RolePermissionSerializer(many=True, read_only=True,)
+    roles=RoleSerializer(many=True,read_only=True)
 
     class Meta:
         model=models.User
-        fields=[
-            "first_name",
-            "last_name",
-            "phone",
-            "username",
-            "is_active",
-            "user_roles",  # Include user roles
-            "user_permissions",
-            # "is_superuser",
-        ]
+        exclude=['password','created_at','modified_at','row_guid','department','created_by','modified_by']
+        # fields=[
+        #     "first_name",
+        #     "last_name",
+        #     "username",
+        #     "roles",
+        #     "phone",
+        #     "email",
+        #     "is_active",
+        #     "is_active",
+        #     "is_superuser",
+        # ]
 
 class UserSerializer(serializers.ModelSerializer):
-    role=RoleSerializer(read_only=True,many=True)
     class Meta:
         model=models.User
         fields="__all__"
@@ -63,11 +72,13 @@ class UserSerializer(serializers.ModelSerializer):
         if models.User.objects.filter(username__iexact=username).exists():
             raise serializers.ValidationError({"username":"Username is already registered"})
         return super().validate(attrs)
+    
+
     def create(self, validated_data):
         roles = self.context.get('request').data.get('role',[])
-        print(roles,"roled")
+        print(validated_data,'validated_data')
         user = models.User.objects.create_user(**validated_data)
-        user.role.set(roles)
+        # user.role.add(*roles)
         return user
     
 

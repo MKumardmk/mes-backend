@@ -228,18 +228,6 @@ class FurnaceConfigSerializer(serializers.ModelSerializer):
         return super().to_representation(instance)
 
 
-class FunctionMasterSerializer(serializers.ModelSerializer):
 
-    class Meta:
-        model = m.FunctionMaster
-        fields = ['id', 'module', 'function_name', 'description', 'record_status', 'created_at', 'modified_at']
-        read_only_fields = ['id', 'created_at', 'modified_at']
-
-class ModuleMasterSerializer(serializers.ModelSerializer):
-    module_functions = FunctionMasterSerializer(many=True, read_only=True)
-    class Meta:
-        model = m.ModuleMaster
-        fields = ['id', 'module_name', 'description', 'record_status','module_functions', 'created_at', 'modified_at']
-        read_only_fields = ['id', 'created_at', 'modified_at']
 
 

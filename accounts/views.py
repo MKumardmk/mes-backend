@@ -36,11 +36,11 @@ class SimpleUserLoginView(APIView):
                 token, created = Token.objects.get_or_create(user=user)
                 
                 status_code = status.HTTP_200_OK
-                response["token"] = token.key
                 serializer = se.UserDetailSerializer(user, context={"request": request})
-                response["user"] = serializer.data
-                response["message"] = "Login successfully"
-                return Response(response, status=status_code)
+                data={**serializer.data}
+                data['token']=token.key
+                
+                return Response(data, status=status_code)
            else:
                return Response({"message": "Password is not correct"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
@@ -124,10 +124,10 @@ class  UserView(APIView):
         if pk:
             user=account_model.User.objects.get(pk=pk)
             serializer=se.UserSerializer(user)
-            return Response({"data":serializer.data})
+            return Response({serializer.data})
         users=account_model.User.objects.filter()
         serializer=se.UserSerializer(users,many=True)
-        return Response({"data":serializer.data})
+        return Response({serializer.data})
     def post(self,request,pk=None):
         serializer=se.UserSerializer(data=request.data,context={"request":request})
         if serializer.is_valid(raise_exception=True):

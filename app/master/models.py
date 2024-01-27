@@ -3,6 +3,8 @@ from django.utils.translation import gettext_lazy as _
 from django.db import connection
 
 
+from app.utils.models import TimeStampModel
+
 
 class Master(models.Model):
     category =  models.CharField(_("master_category"), max_length=100)
@@ -25,3 +27,22 @@ class Master(models.Model):
             results = cursor.fetchall()   
             
         return results
+    
+
+class ModuleMaster(TimeStampModel):
+    module_name=models.CharField(max_length=255)
+    description = models.TextField(null=True)
+    record_status = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.module_name
+    
+
+class FunctionMaster(TimeStampModel):
+    module = models.ForeignKey(ModuleMaster,related_name="module_functions",max_length=255, null=False,on_delete=models.CASCADE)
+    function_name = models.CharField(max_length=255, null=False)
+    description = models.TextField(null=True)
+    record_status = models.BooleanField(default=True)
+
+    def __str__(self) -> str:
+        return self.function_name

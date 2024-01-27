@@ -6,26 +6,30 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser,BaseUserManager
 from django.utils.translation import gettext_lazy as _
 
+from app.master.models import FunctionMaster
 
-from utils.models import AuditModel
+
+from app.utils.models import TimeStampModel
 
 # Create your models here.
 
 class UserManager(BaseUserManager):
     def create_user(self, username: str, password: str = None, **extra_fields):
+        roles=extra_fields.pop('role',[])
         extra_fields.setdefault("is_staff", False)
         extra_fields.setdefault("is_superuser", False)
         user=self.model(username=username,**extra_fields)
         user.username = username
         user.set_password(password)
         user.save(using=self._db)
+        user.role.set(roles)
         return user
     def create_superuser(self, username, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         return self.create_user( username, password, **extra_fields)
 
-class Module(AuditModel):
+class Module(TimeStampModel):
     module_name = models.CharField(_("Module Name"), null=True, blank=True,max_length=255)
     def __str__(self):
         return self.module_name
@@ -77,7 +81,7 @@ class User(AbstractBaseUser):
 # class UserRole():
 #     plant_user=models.ForeignKey(PlantUser,on_delete=models.CASCADE)
 #     role=models.ForeignKey(PlantUser,on_delete=models.CASCADE)
-class Function(AuditModel):
+class Function(TimeStampModel):
     module = models.ForeignKey(Module, on_delete=models.DO_NOTHING, null=True, blank=True)
     function_name = models.CharField(_("Name of Role"), max_length=100)
     description = models.TextField(_("Description"), null=True, blank=True)
@@ -90,7 +94,7 @@ class Function(AuditModel):
 
 class RolePermission(models.Model):
     role=models.ForeignKey(Role,related_name="role_permissions",on_delete=models.CASCADE)
-    function=models.ForeignKey(Function,related_name="function_permissions",on_delete=models.CASCADE)
+    function_master=models.ForeignKey(FunctionMaster,related_name="function_permissions",on_delete=models.CASCADE,null=True)
     create=models.BooleanField(default=False)
     view=models.BooleanField(default=False)
     edit=models.BooleanField(default=False)
