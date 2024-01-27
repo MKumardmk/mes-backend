@@ -55,7 +55,7 @@ class RolesView(APIView):
         roles=account_model.Role.objects.filter(record_status=True)
         serializer=se.RoleSerializer(roles,many=True)
 
-        return Response({"data":serializer.data})
+        return Response({"results":serializer.data})
     def post(self,request):
         try:
             role_name = request.data.get("role_name")
