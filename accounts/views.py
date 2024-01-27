@@ -127,7 +127,7 @@ class  UserView(APIView):
             return Response({serializer.data})
         users=account_model.User.objects.filter()
         serializer=se.UserSerializer(users,many=True)
-        return Response({serializer.data})
+        return Response({"results":serializer.data})
     def post(self,request,pk=None):
         serializer=se.UserSerializer(data=request.data,context={"request":request})
         if serializer.is_valid(raise_exception=True):
