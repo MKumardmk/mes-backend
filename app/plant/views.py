@@ -437,16 +437,20 @@ class FurnaceConfigStepListAPIView(APIView):
 
         for index,item in enumerate(output_data,start=1):
             pk_id = item.get('id', None)
-            if pk_id:ids.append(pk_id)
             print("item",item,pk_id)
             #   order = item.pop('order', 0)
             control_parameters=  item.pop('control_parameters', [])
             additives_data=item.pop('additives', [])
+            print(type(pk_id))
             if pk_id:
                 furnace_config_step = plant_model.FurnaceConfigStep.objects.filter(Q(pk=pk_id), furnace_id=furnace_id).update( **item)
                 furnace_config_step= plant_model.FurnaceConfigStep.objects.filter(pk=pk_id).first()
             else:
                 furnace_config_step = plant_model.FurnaceConfigStep.objects.create(furnace_id=furnace_id,**item)
+                print("else called")
+
+
+            if furnace_config_step:ids.append(furnace_config_step.id)
 
             print(type(furnace_config_step),furnace_config_step,"test")
 
