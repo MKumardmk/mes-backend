@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from django.contrib.auth.models import User
 from app.master.models import Master
-from utils.models import AuditModel,TimeStampModel
+from utils.models import AuditModel
 class TimeStampModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(null=True)
@@ -238,6 +238,7 @@ class PlantConfigProduct(models.Model):
     modified_by = models.IntegerField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(null=True, blank=True)
+    record_status = models.BooleanField(default=True)
 
     class Meta:
         db_table = 'plant_config_product'
@@ -250,6 +251,7 @@ class PlantConfigWorkshop(models.Model):
     modified_by = models.IntegerField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(null=True, blank=True)
+    record_status = models.BooleanField(default=True)
 
     class Meta:
         db_table = 'plant_config_workshop'
@@ -260,6 +262,7 @@ class PlantConfigFunction(models.Model):
     function_id = models.IntegerField()
     created_by = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
+    record_status = models.BooleanField(default=True)
 
     class Meta:
         unique_together = ( 'module_id', 'function_id')
