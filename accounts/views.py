@@ -12,7 +12,8 @@ from rest_framework import viewsets
 
 from . import models as account_model
 from . import serializers as se
-
+from app.master import serializers as master_se
+from app.master import models as master_models
 
 # Create your views here.
 class SimpleUserLoginView(APIView):
@@ -124,7 +125,7 @@ class  UserView(APIView):
         if pk:
             user=account_model.User.objects.get(pk=pk)
             serializer=se.UserSerializer(user)
-            return Response({serializer.data})
+            return Response(serializer.data)
         users=account_model.User.objects.filter()
         serializer=se.UserSerializer(users,many=True)
         return Response({"results":serializer.data})
@@ -209,8 +210,8 @@ def deactivate_role(request):
 
 
 class FunctionViewSet(viewsets.ModelViewSet):
-    queryset = account_model.Function.objects.all()
-    serializer_class = se.FunctionSerializer
+    queryset = master_models.FunctionMaster.objects.all()
+    serializer_class = master_se.FunctionMasterSerializer
 
     def list(self, request, *args, **kwargs):
         response= super().list(request, *args, **kwargs)

@@ -3,15 +3,15 @@ from . import models
 
 from app.master.models import FunctionMaster,ModuleMaster
 
+class RolePermissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.RolePermission
+        fields = '__all__'
 class RoleSerializer(serializers.ModelSerializer):
-
-    total_functions=serializers.SerializerMethodField()
+    role_permissions = RolePermissionSerializer(many=True, read_only=True)
     class Meta:
         model = models.Role
         fields = '__all__'
-    def get_total_functions(self,obj):
-        pass
-
 
     def create(self, validated_data):
         role = models.Role.objects.create(**validated_data )
@@ -29,21 +29,11 @@ class RoleSerializer(serializers.ModelSerializer):
                 edit=permissions.get('edit', False),
                 created_by_id=1
                     )
-
-
         return role
-
-class RolePermissionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.RolePermission
-        fields = '__all__'
-
-
-
 class UserDetailSerializer(serializers.ModelSerializer[models.User]):
     # user_roles = RoleSerializer(many=True, read_only=True, )
     # user_permissions = RolePermissionSerializer(many=True, read_only=True,)
-    roles=RoleSerializer(many=True,read_only=True)
+    role=RoleSerializer(many=True,read_only=True)
 
     class Meta:
         model=models.User
