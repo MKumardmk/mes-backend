@@ -13,16 +13,16 @@ from utils.models import AuditModel
 
 class UserManager(BaseUserManager):
     def create_user(self, username: str, password: str = None, **extra_fields):
-        # extra_fields.setdefault("is_staff", False)
-        # extra_fields.setdefault("is_superuser", False)
+        extra_fields.setdefault("is_staff", False)
+        extra_fields.setdefault("is_superuser", False)
         user=self.model(username=username,**extra_fields)
         user.username = username
         user.set_password(password)
         user.save(using=self._db)
         return user
     def create_superuser(self, username, password=None, **extra_fields):
-        # extra_fields.setdefault('is_staff', True)
-        # extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
         return self.create_user( username, password, **extra_fields)
 
 class Module(AuditModel):
@@ -30,6 +30,17 @@ class Module(AuditModel):
     def __str__(self):
         return self.module_name
     
+class Role(models.Model):
+    role_name = models.CharField(verbose_name=_("Name of Role"), max_length=255)
+    created_by=models.ForeignKey("User",related_name="role_created_by",on_delete=models.CASCADE)
+    modified_by=models.ForeignKey("User",related_name="role_modified_by",on_delete=models.CASCADE,null=True,blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    record_status = models.BooleanField(default=True)
+
+    def __str__(self) -> str:
+        return self.role_name
 
 class User(AbstractBaseUser):
     first_name=models.CharField(max_length=100)
@@ -40,11 +51,14 @@ class User(AbstractBaseUser):
     login_type=models.CharField(max_length=50)
     username=models.CharField(max_length=50,unique=True,verbose_name=_("UserName"))
     is_active=models.BooleanField(default=True)
+    is_staff=models.BooleanField(default=False)
+    is_superuser=models.BooleanField(default=False)
     record_status=models.BooleanField(default=True)
     created_by=models.IntegerField(null=True,blank=True)
     modified_by=models.IntegerField(null=True,blank=True)
     created_at=models.DateTimeField(auto_now_add=True)
     modified_at=models.DateTimeField(auto_now_add=True)
+    role=models.ManyToManyField(Role,related_name="user_roles")
     row_guid=models.UUIDField(default=uuid.uuid4, editable=False)
     
     USERNAME_FIELD = "username"
@@ -53,12 +67,12 @@ class User(AbstractBaseUser):
     objects=UserManager()
 
 
-class PlantUser(models.Model):
-    plant=models.CharField(max_length=20)
-    user=models.ForeignKey("User",on_delete=models.CASCADE)
+# class PlantUser(models.Model):
+#     plant=models.CharField(max_length=20)
+#     user=models.ForeignKey("User",on_delete=models.CASCADE)
 
-    def __str__(self) -> str:
-        return self.id
+#     def __str__(self) -> str:
+#         return self.id
     
 # class UserRole():
 #     plant_user=models.ForeignKey(PlantUser,on_delete=models.CASCADE)
@@ -72,26 +86,15 @@ class Function(AuditModel):
         return self.function_name
     
 
-class Role(models.Model):
-    role_name = models.CharField(verbose_name=_("Name of Role"), blank=True, max_length=255)
-    created_by=models.ForeignKey(User,related_name="role_created_by",on_delete=models.CASCADE)
-    modified_by=models.ForeignKey(User,related_name="role_modified_by",on_delete=models.CASCADE,null=True,blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    modified_at = models.DateTimeField(auto_now=True, null=True, blank=True)
-    is_active = models.BooleanField(default=True)
-    record_status = models.BooleanField(default=True)
-
-    def __str__(self) -> str:
-        return self.role_name
 
 
 class RolePermission(models.Model):
     role=models.ForeignKey(Role,related_name="role_permissions",on_delete=models.CASCADE)
-    plant_id=models.CharField(max_length=10)
-    function=models.CharField(max_length=255)
-    create=models.CharField(max_length=50)
-    edit=models.CharField(max_length=50)
-    delete=models.CharField(max_length=50)
+    function=models.ForeignKey(Function,related_name="function_permissions",on_delete=models.CASCADE)
+    create=models.BooleanField(default=False)
+    view=models.BooleanField(default=False)
+    edit=models.BooleanField(default=False)
+    delete=models.BooleanField(default=False)
     created_by=models.ForeignKey(User,related_name="permission_created_by",on_delete=models.CASCADE)
     modified_by=models.ForeignKey(User,related_name="permission_modified_by",on_delete=models.CASCADE,null=True,blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

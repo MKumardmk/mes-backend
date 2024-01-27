@@ -6,6 +6,26 @@ class RoleSerializer(serializers.ModelSerializer):
         model = models.Role
         fields = '__all__'
 
+
+    def create(self, validated_data):
+        role = models.Role.objects.create(**validated_data )
+
+        request=self.context.get('request',None)
+        permission_list = request.data.get("permission_list")
+
+        for module_name, permissions_data in permission_list.items():
+            models.RolePermission.objects.create(
+                function_id=permissions_data.get('function_id'),
+                role=role,
+                view=permissions_data.get('view', False),
+                create=permissions_data.get('create', False),
+                edit=permissions_data.get('edit', False),
+                created_by_id=1
+                    )
+
+
+        return role
+
 class RolePermissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.RolePermission
@@ -30,5 +50,30 @@ class UserDetailSerializer(serializers.ModelSerializer[models.User]):
             # "is_superuser",
         ]
 
+class UserSerializer(serializers.ModelSerializer):
+    role=RoleSerializer(read_only=True,many=True)
+    class Meta:
+        model=models.User
+        fields="__all__"
+        extra_kwargs = {"password": {"write_only": True}}
 
+    def validate(self, attrs):
+        username=attrs.get('username','')
+        print(username,"asdlkjashdflkjashdflkjhasdflkjh")
+        if models.User.objects.filter(username__iexact=username).exists():
+            raise serializers.ValidationError({"username":"Username is already registered"})
+        return super().validate(attrs)
+    def create(self, validated_data):
+        roles = self.context.get('request').data.get('role',[])
+        print(roles,"roled")
+        user = models.User.objects.create_user(**validated_data)
+        user.role.set(roles)
+        return user
+    
+
+
+class FunctionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Function
+        fields = '__all__'
 

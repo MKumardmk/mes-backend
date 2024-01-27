@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.models import Token
+from rest_framework import viewsets
 
 from . import models as account_model
 from . import serializers as se
@@ -51,65 +52,101 @@ class SSOLoginView(APIView):
         return Response({"message":"Login Successfully using SSO "})
 class RolesView(APIView):
     def get(self,request):
-        return Response({"data"})
+        roles=account_model.Role.objects.filter(record_status=True)
+        serializer=se.RoleSerializer(roles,many=True)
+
+        return Response({"data":serializer.data})
     def post(self,request):
-        print(request.user,"userasd;lfkhjas;dlfkj")
         try:
             role_name = request.data.get("role_name")
             permission_list = request.data.get("permission_list",{})
             response = {}
             existing_role = account_model.Role.objects.filter(role_name__iexact=role_name).first()
+            print(existing_role,"existing role")
             if existing_role:
                 return Response({"message": "Role with the same name already exists"}, status=status.HTTP_400_BAD_REQUEST)
-            role = account_model.Role.objects.create(role_name=role_name,created_by_id=1 )
-            for module_name, functions_list in permission_list.items():
-                for function, permissions in functions_list.items():
-                    role_permission = account_model.RolePermission.objects.create(
-                        function_id=permissions["id"],
-                        role=role,
-                        read=permissions["view"],
-                        create=permissions["create"],
-                        edit=permissions["edit"],
-                        delete=permissions["delete"],
-                    )
-            # response["permission_list"] = get_permissions_list(role.id)
-            response["role"] = se.RoleSerializer(role, context={"request": request}).data
-            return Response(response, status=status.HTTP_200_OK)
+            serializer= se.RoleSerializer(data=request.data,context={"request":request})
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return Response({"message":"Role Added SuccessFully"})
+            # role = account_model.Role.objects.create(role_name=role_name,created_by_id=1 )
+            # for module_name, functions_list in permission_list.items():
+            #     for function, permissions in functions_list.items():
+            #         role_permission = account_model.RolePermission.objects.create(
+            #             function_id=permissions["id"],
+            #             role=role,
+            #             read=permissions["view"],
+            #             create=permissions["create"],
+            #             edit=permissions["edit"],
+            #             delete=permissions["delete"],
+            #         )
+            # # response["permission_list"] = get_permissions_list(role.id)
+            # response["role"] = se.RoleSerializer(role, context={"request": request}).data
+            return Response("response", status=status.HTTP_200_OK)
         
         except IntegrityError as e:
             print("exception>>>>>>>", e)
             return Response({"error": "Role with the same name already exists...."}, status=status.HTTP_400_BAD_REQUEST)
 
+    # def put(self,request,pk=None):
+    #     try:
+    #         role_name = request.data.get("role_name")
+    #         role_id = request.data.get("role_id")
+    #         permission_list = request.data.get("permission_list")
+    #         is_superuser = request.data.get("is_superuser")
+    #         response={}
+    #         existing_role = account_model.Role.objects.exclude(pk=role_id).filter(role_name__iexact=role_name).first()
+    #         print(existing_role,"existing_role")
+    #         if existing_role:
+    #             return Response({"message": "Role with the same name already exists"}, status=status.HTTP_400_BAD_REQUEST)
+    #         role = account_model.Role.objects.get(id=role_id)
+    #         role.role_name = role_name
+    #         role.modified_by_id=1
+    #         # role.is_superuser = is_superuser
+    #         role.save()
+    #         for module_name, functions_list in permission_list.items():
+    #             for function, permissions in functions_list.items():
+    #                 role_permission = account_model.RolePermission.objects.get(id=permissions["id"])
+    #                 role_permission.read = permissions["view"]
+    #                 role_permission.create = permissions["create"]
+    #                 role_permission.edit = permissions["edit"]
+    #                 role_permission.delete = permissions["delete"]
+    #                 role_permission.save()
+    #         # response["permission_list"] = get_permissions_list(role.id)
+    #         response["role"] = se.RoleSerializer(role, context={"request": request}).data
+    #         return Response(response, status=status.HTTP_200_OK)
+    #     except IntegrityError as e:
+    #         return Response({"error": "Role with the same name already exists"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class  UserView(APIView):
+    def get(self,request,pk=None):
+        if pk:
+            user=account_model.User.objects.get(pk=pk)
+            serializer=se.UserSerializer(user)
+            return Response({"data":serializer.data})
+        users=account_model.User.objects.filter()
+        serializer=se.UserSerializer(users,many=True)
+        return Response({"data":serializer.data})
+    def post(self,request,pk=None):
+        serializer=se.UserSerializer(data=request.data,context={"request":request})
+        if serializer.is_valid(raise_exception=True):
+            user=serializer.save()
+            # user=account_model.User.objects.create_user(**data)
+            return Response({"message":f'User {user.username} added SuccessFully'})
+        
     def put(self,request,pk=None):
-        try:
-            role_name = request.data.get("role_name")
-            role_id = request.data.get("role_id")
-            permission_list = request.data.get("permission_list")
-            is_superuser = request.data.get("is_superuser")
-            response={}
-            existing_role = account_model.Role.objects.exclude(pk=role_id).filter(role_name__iexact=role_name).first()
-            if existing_role:
-                return Response({"message": "Role with the same name already exists"}, status=status.HTTP_400_BAD_REQUEST)
-            role = account_model.Role.objects.get(id=role_id)
-            role.role_name = role_name
-            role.modified_by_id=1
-            # role.is_superuser = is_superuser
-            role.save()
-            for module_name, functions_list in permission_list.items():
-                for function, permissions in functions_list.items():
-                    role_permission = account_model.RolePermission.objects.get(id=permissions["id"])
-                    role_permission.read = permissions["view"]
-                    role_permission.create = permissions["create"]
-                    role_permission.edit = permissions["edit"]
-                    role_permission.delete = permissions["delete"]
-                    role_permission.save()
-            # response["permission_list"] = get_permissions_list(role.id)
-            response["role"] = se.RoleSerializer(role, context={"request": request}).data
-            return Response(response, status=status.HTTP_200_OK)
-        except IntegrityError as e:
-            return Response({"error": "Role with the same name already exists"}, status=status.HTTP_400_BAD_REQUEST)
+        data=request.data
+        data.pop('username')
+        data.pop('is_superuser')
 
-
+        user=account_model.User.objects.filter(pk=pk).first()
+        serializer=se.UserDetailSerializer(instance=user,data=data,partial=True)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response({"message":"User Updated Successfully"})
+        else :
+            return Response({"message":serializer.errors})
 
 @api_view(["POST"])
 @permission_classes((AllowAny,))
@@ -168,3 +205,25 @@ def deactivate_role(request):
 
     response["role"] = se.RoleSerializer(role, context={"request": request}).data
     return Response(response, status=status.HTTP_200_OK)
+
+
+
+class FunctionViewSet(viewsets.ModelViewSet):
+    queryset = account_model.Function.objects.all()
+    serializer_class = se.FunctionSerializer
+
+    def list(self, request, *args, **kwargs):
+        response= super().list(request, *args, **kwargs)
+        return response
+    
+    def create(self, request, *args, **kwargs):
+        default_values = {
+            'created_by': 1, 
+        }
+        data_with_defaults = {**request.data, **default_values}
+        serializer = self.get_serializer(data=data_with_defaults)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=201, headers=headers)
