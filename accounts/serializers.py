@@ -4,14 +4,20 @@ from . import models
 from app.master.models import FunctionMaster,ModuleMaster
 
 class RolePermissionSerializer(serializers.ModelSerializer):
+    # function_master = FunctionMasterSerializer(read_only=True)
     class Meta:
         model = models.RolePermission
         fields = '__all__'
 class RoleSerializer(serializers.ModelSerializer):
     role_permissions = RolePermissionSerializer(many=True, read_only=True)
+    module=serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = models.Role
         fields = '__all__'
+
+    def get_module(self,obj):
+        role_permissions = obj.role_permissions.all()
+        return "role_permissions"
 
     def create(self, validated_data):
         role = models.Role.objects.create(**validated_data )

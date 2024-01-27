@@ -228,3 +228,34 @@ class FunctionViewSet(viewsets.ModelViewSet):
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=201, headers=headers)
+    
+
+from app.master.models import ModuleMaster
+@api_view(['GET'])
+def get_roles(request):
+    data=[]
+    module=ModuleMaster.objects.all()
+    for i, item in enumerate(module):
+        print(i)
+        functions=item.module_functions.all()
+        module_data={}
+        module_data['id']=item.id
+        module_data['module']=item.module_name
+        module_data['functions']=[]
+        for function in functions:
+            module_data.get('functions').append({"id":function.id,"function_name":function.function_name})
+            permissions=function.function_permissions.all()
+            module_data['permissions']=[]
+            for permission in permissions:
+                permission_data={
+                    "view":permission.view or False,
+                    "create":permission.create or False,
+                    "edit":permission.edit or False,
+                    "delete":permission.delete or False,
+                }
+                module_data['permissions'].append(permission_data)
+        data.append(module_data)
+    return Response(data)
+
+
+
