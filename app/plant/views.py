@@ -205,12 +205,36 @@ class PlantConfigView(APIView):
         serializer = PlantConfigSerializer(plant_config, data=request.data,partial=True)
         if serializer.is_valid():
             plant_config=serializer.save()
+            plant_product_ids=[]
+            plant_function_ids=[]
             for plant_product in plant_config_products:
-                PlantConfigProduct.objects.filter(pk=plant_product.pop('id'),plant_config=plant_config).update(**plant_product)
+                pk_plant_product_id = plant_product.pop('id',None)
+                if pk_plant_product_id:
+                    product = PlantConfigProduct.objects.filter(pk=pk_plant_product_id,plant_config=plant_config).update(**plant_product)
+                    product = PlantConfigProduct.objects.filter(pk=pk_plant_product_id,plant_config=plant_config).first()
+                else:
+                    product = PlantConfigProduct.objects.create(plant_config=plant_config,**plant_product,created_by=1)
+
+                plant_product_ids.append(product.id)
             for plant_workshop in plant_config_workshops:
-                PlantConfigWorkshop.objects.filter(pk=plant_workshop.pop('id'),plant_config=plant_config).update(**plant_workshop)
+                pk_plant_workshop_id = plant_workshop.pop('id',None)
+                if pk_plant_workshop_id:
+                    PlantConfigWorkshop.objects.filter(pk=pk_plant_workshop_id,plant_config=plant_config).update(**plant_workshop)
+                else:
+                    PlantConfigWorkshop.objects.create(plant_config=plant_config,**plant_workshop,created_by=1)
+
             for plant_function in plant_functions:
-                PlantConfigFunction.objects.filter(pk=plant_function.pop('id'),plant_config=plant_config).update(**plant_function)
+                pk_plant_function_id = plant_function.pop('id',None)
+                if pk_plant_function_id:
+                    functions = PlantConfigFunction.objects.filter(pk=pk_plant_function_id,plant_config=plant_config).update(**plant_function)
+                    functions = PlantConfigFunction.objects.filter(pk=pk_plant_function_id,plant_config=plant_config).first()
+                else:
+                    functions = plant_model.PlantConfigFunction.objects.create(plant_config=plant_config,**plant_function,created_by=1)
+
+                plant_function_ids.append(functions.id)
+
+            plant_model.PlantConfigProduct.objects.filter(plant_config=plant_config).exclude(id__in=plant_product_ids).delete()
+            plant_model.PlantConfigFunction.objects.filter(plant_config=plant_config).exclude(id__in=plant_function_ids).delete()
             
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
