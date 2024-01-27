@@ -66,6 +66,11 @@ def function_list(request):
         res = Function.function_procedure()
         # serializer = FunctionSerializer(res, many = True)
         return Response(res)
+class FunctionListView(APIView):
+    def get(self,request,):
+        data=plant_model.ModuleMaster.objects.all()
+        serializer=se.ModuleMasterSerializer(data,many=True)
+        return Response(serializer.data)
     
 @api_view(["GET"])
 @permission_classes((AllowAny,))

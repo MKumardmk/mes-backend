@@ -7,6 +7,7 @@ from django.utils import timezone
 
 from django.contrib.auth.models import User
 from app.master.models import Master
+from utils.models import AuditModel,TimeStampModel
 class TimeStampModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(null=True)
@@ -19,6 +20,7 @@ class TimeStampModel(models.Model):
 
 class Plant(TimeStampModel):
     name=models.CharField(max_length=100)
+
 
     def __str__(self) -> str:
         return self.name
@@ -121,8 +123,8 @@ class PlantConfig(models.Model):
     plant_name = models.CharField(_("plant_config_name"), max_length=100)
     area_code = models.CharField(_("plant_config_area_code"), max_length=100)
     plant_address = models.CharField(_("plant_config_address"), max_length=100)
-    # timezone = models.ForeignKey(TimeZone, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("plant_config_language"))
-    # language = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True, blank=True)
+    # timezone = models.ForeignKey(TimeZone, on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("plant_config_language"))
+    # language = models.ForeignKey(Language, on_delete=models.CASCADE, null=True, blank=True)
     timezone_id = models.IntegerField(_("plant_config_language"), )
     language_id = models.IntegerField()
     unit_id = models.IntegerField()
@@ -242,7 +244,7 @@ class PlantConfigProduct(models.Model):
 
 class PlantConfigWorkshop(models.Model):
     plant_config = models.ForeignKey(PlantConfig,related_name="plant_config_workshops", on_delete=models.CASCADE)
-    workshop_id = models.IntegerField()
+    workshop_id = models.IntegerField(unique=True)
     workshop_name = models.CharField(max_length=500)
     created_by = models.IntegerField()
     modified_by = models.IntegerField(null=True, blank=True)
@@ -265,7 +267,7 @@ class PlantConfigFunction(models.Model):
 
 class FurnaceConfig(models.Model):
     plant_id = models.CharField(max_length=50)
-    furnace_no = models.CharField(max_length=50)
+    furnace_no = models.CharField(max_length=50,unique=True)
     furnace_description = models.CharField(max_length=500)
     workshop = models.ForeignKey(PlantConfigWorkshop,related_name="plant_furnace_workshop",on_delete=models.CASCADE)
     power_delivery = models.ForeignKey(Master,related_name="furnace_master_power_delivery",on_delete=models.CASCADE,null=True)
@@ -297,8 +299,8 @@ class FurnaceConfig(models.Model):
 
 class FurnaceProduct(models.Model):
     furnace_config = models.ForeignKey(FurnaceConfig,related_name="furnace_config_products",on_delete=models.CASCADE,null=True,blank=True)
-    product_state = models.ForeignKey(Master,related_name="master_furnace_product_state",on_delete=models.SET_NULL,null=True)
-    product_type = models.ForeignKey(Master,related_name="master_furnace_product_type",on_delete=models.SET_NULL,null=True)
+    product_state = models.ForeignKey(Master,related_name="master_furnace_product_state",on_delete=models.CASCADE,null=True)
+    product_type = models.ForeignKey(Master,related_name="master_furnace_product_type",on_delete=models.CASCADE,null=True)
     product_code = models.CharField(max_length=100,null=True,blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(null=True)
@@ -312,11 +314,11 @@ class FurnaceElectrode(models.Model):
     furnace_config = models.ForeignKey(FurnaceConfig,related_name="furnace_config_electrodes",on_delete=models.CASCADE,null=True,blank=True)
     electrode_type_id = models.IntegerField(null=True)
     type_name = models.CharField(max_length=50)
-    core = models.ForeignKey(Master,related_name="master_furnace_electrode",on_delete=models.SET_NULL,null=True)
+    core = models.ForeignKey(Master,related_name="master_furnace_electrode",on_delete=models.CASCADE,null=True)
     core_mass_length = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    paste = models.ForeignKey(Master,related_name="master_electrode_paste",on_delete=models.SET_NULL,null=True)
+    paste = models.ForeignKey(Master,related_name="master_electrode_paste",on_delete=models.CASCADE,null=True)
     paste_mass_length = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    casing = models.ForeignKey(Master,related_name="master_electrode_casing",on_delete=models.SET_NULL,null=True)
+    casing = models.ForeignKey(Master,related_name="master_electrode_casing",on_delete=models.CASCADE,null=True)
     casing_mass_length = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(null=True)
@@ -360,3 +362,34 @@ class Additives(models.Model):
 
     def __str__(self) -> str:
         return self.material
+    
+
+# class FurnaceProductType(models.Model):
+#     name=models.CharField(max_length=50)
+
+#     def __str__(self) -> str:
+#         return self.name
+    
+# # class FurnaceProductCode(models.Model):
+# #     code=models.CharField(max_length=50)
+# #     def __str__(self) -> str:
+# #         return self.code
+
+
+class ModuleMaster(TimeStampModel):
+    module_name=models.CharField(max_length=255)
+    description = models.TextField(null=True)
+    record_status = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.module_name
+    
+
+class FunctionMaster(TimeStampModel):
+    module = models.ForeignKey(ModuleMaster,related_name="module_functions",max_length=255, null=False,on_delete=models.CASCADE)
+    function_name = models.CharField(max_length=255, null=False)
+    description = models.TextField(null=True)
+    record_status = models.BooleanField(default=True)
+
+    def __str__(self) -> str:
+        return self.function_name

@@ -14,6 +14,7 @@ urlpatterns = [
     path("currency/", view=views.currency_list, name="currency"),
     path("product/", view=views.product_list, name="product"),
     path("function/", view=views.function_list, name="function"),
+    path("function/", view=views.FunctionListView.as_view(), name="function"),
     # path("plant-config/", view=views.plant_config_get, name="plant_config"),
     re_path(r'^plant-config/(?P<pk>\d+)?/?$',views.PlantConfigView.as_view(),name='plant_config'),
     re_path(r'^furnace-config/(?P<plant_id>\d*)?/?(?P<pk>\d*)?/?$',views.FurnaceConfigView.as_view(),name='furnace_config'),
