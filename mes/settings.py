@@ -42,7 +42,6 @@ SYSTEM_APPS = [
 LOCAL_APPS=[
    'app',
     'accounts',
-    'utils',
             ]
 
 THIRD_PARTY_APPS=[
@@ -84,24 +83,24 @@ TEMPLATES = [
 WSGI_APPLICATION = 'mes.wsgi.application'
 
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mes-dev-db',
-        'USER': 'postgres',
-        'PASSWORD': 'Gokul@4580',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-}
-
-# import os
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'mes-dev-db',
+#         'USER': 'postgres',
+#         'PASSWORD': 'Gokul@4580',
+#         'HOST': 'localhost',
+#         'PORT': '5432',
 #     }
 # }
+
+import os
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
 
 
 
