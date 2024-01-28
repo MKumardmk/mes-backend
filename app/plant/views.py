@@ -12,7 +12,8 @@ from django.shortcuts import get_object_or_404
 from . import serializers as se 
 from . import models as plant_model
 from django.db.models import Q
-
+from app.master.models import ModuleMaster
+from app.master.serializers import ModuleMasterSerializer
 @api_view(["GET"])
 @permission_classes((AllowAny,))
 def time_zone_list(request):
@@ -68,8 +69,8 @@ def function_list(request):
         return Response(res)
 class FunctionListView(APIView):
     def get(self,request,):
-        data=plant_model.ModuleMaster.objects.all()
-        serializer=se.ModuleMasterSerializer(data,many=True)
+        data=ModuleMaster.objects.all()
+        serializer=ModuleMasterSerializer(data,many=True)
         return Response(serializer.data)
     
 @api_view(["GET"])
