@@ -367,16 +367,10 @@ class FurnaceDeactivateView(APIView):
     def post(self,request,pk=None):
         furnace_config = get_object_or_404(FurnaceConfig, pk=pk)
         furnace_config.is_active = not furnace_config.is_active
+        furnace_config.record_status=not furnace_config.record_status
         furnace_config.save()
         return Response({"message": f"Furnace is {'Activated' if furnace_config.is_active else 'Deactivated'} SuccessFully"})
 
-# class FurnaceProductDeactivateView(APIView):
-#     def post(self,request,pk=None):
-#         is_active=request.data.get('is_active',True)
-#         furnace_config = get_object_or_404(FurnaceConfigPr, pk=pk)
-#         furnace_config.is_active = not furnace_config.is_active
-#         furnace_config.save()
-#         return Response({"message": f"Furnace is {'Activated' if furnace_config.is_active else 'Deactivated'} SuccessFully"})
 class FurnaceConfigStepListAPIView(APIView):
     def post(self,request,furnace_id=None):
         print("called inside post inFurnaceConfigStepListAPIView ",request.data)

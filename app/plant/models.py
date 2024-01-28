@@ -19,8 +19,9 @@ class TimeStampModel(models.Model):
 
 
 class Plant(TimeStampModel):
-    name=models.CharField(max_length=100)
-
+    name=models.CharField(max_length=100,default="")
+    code=models.CharField(max_length=20,default="")
+    area=models.CharField(max_length=20,default="")
 
     def __str__(self) -> str:
         return self.name
