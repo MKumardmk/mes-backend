@@ -52,14 +52,7 @@ class SimpleUserLoginView(APIView):
 class SSOLoginView(APIView):
     def post(self,request,):
         return Response({"message":"Login Successfully using SSO "})
-    
 
-class DeactivateUser(APIView):
-    def post(self,request,pk=None):
-        user=account_model.User.objects.get(pk=pk)
-        user.is_delete= not user.is_delete
-        user.save()
-        return Response({"message":f"User {"Deactivated" if  user.is_delete else "Activated"} SuccessFully"})
 class RolesView(APIView):
     def get(self,request,pk=None):
         if pk:
@@ -162,6 +155,11 @@ class  UserView(APIView):
             return Response({"message":"User Updated Successfully"})
         else :
             return Response({"message":serializer.errors})
+    def patch(self,request,pk=None):
+        user=account_model.User.objects.get(pk=pk)
+        user.is_delete= not user.is_delete
+        user.save()
+        return Response({"message":f"User {"Deactivated" if  user.is_delete else "Activated"} SuccessFully"})
 
 @api_view(["POST"])
 @permission_classes((AllowAny,))
@@ -243,6 +241,35 @@ class FunctionViewSet(viewsets.ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=201, headers=headers)
     
+@api_view(["POST"])
+@permission_classes((AllowAny,))
+def edit_role(request):
+    try:
+        role_name = request.data.get("role_name")
+        role_id = request.data.get("role_id")
+        permission_list = request.data.get("permission_list")
+        is_superuser = request.data.get("is_superuser")
+        response = {}
+        existing_role = account_model.Role.objects.exclude(pk=role_id).filter(role_name__iexact=role_name).first()
+        if existing_role:
+            return Response({"message": "Role with the same name already exists"}, status=status.HTTP_400_BAD_REQUEST)
+        role = account_model.Role.objects.get(id=role_id)
+        role.role_name = role_name
+        role.is_superuser = is_superuser
+        role.save()
+        for module_name, functions_list in permission_list.items():
+            for function, permissions in functions_list.items():
+                role_permission = account_model.RolePermission.objects.get(id=permissions["id"])
+                role_permission.view = permissions["view"]
+                role_permission.create = permissions["create"]
+                role_permission.edit = permissions["edit"]
+                role_permission.delete = permissions["delete"]
+                role_permission.save()
+        response["permission_list"] = get_permissions_list(role.id)
+        response["role"] = se.RoleSerializer(role, context={"request": request}).data
+        return Response(response, status=status.HTTP_200_OK)
+    except IntegrityError as e:
+        return Response({"error": "Role with the same name already exists"}, status=status.HTTP_400_BAD_REQUEST)
 
 from app.master.models import ModuleMaster
 @api_view(['GET'])
