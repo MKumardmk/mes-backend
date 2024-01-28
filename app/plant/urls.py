@@ -16,7 +16,8 @@ urlpatterns = [
     # path("function/", view=views.function_list, name="function"),
     path("function/", view=views.FunctionListView.as_view(), name="function"),
     # path("plant-config/", view=views.plant_config_get, name="plant_config"),
-    re_path(r'^plant-config/(?P<pk>\d+)?/?$',views.PlantConfigView.as_view(),name='plant_config'),
+    # re_path(r'^plant-config/(?P<pk>\d+)?/?$',views.PlantConfigView.as_view(),name='plant_config'),
+    path('plant-config/<str:pk>/',views.PlantConfigView.as_view(),name='plant_config'),
     re_path(r'^furnace-config/(?P<plant_id>\d*)?/?(?P<pk>\d*)?/?$',views.FurnaceConfigView.as_view(),name='furnace_config'),
     re_path(r'^furnace-config-steps/(?P<furnace_id>\d*)?/?$', views.FurnaceConfigStepListAPIView.as_view(), name='furnace_config_steps_list'),
 
