@@ -143,6 +143,7 @@ class  UserView(APIView):
             return Response({"message":f'User {user.username} added SuccessFully'})
         
     def put(self,request,pk=None):
+        roles = request.data.get('role',[])
         data=request.data
         keys_to_remove = ['username', 'is_superuser', 'login_type']
         for key in keys_to_remove:
@@ -151,7 +152,8 @@ class  UserView(APIView):
         user=account_model.User.objects.filter(pk=pk).first()
         serializer=se.UserDetailSerializer(instance=user,data=data,partial=True)
         if serializer.is_valid(raise_exception=True):
-            serializer.save()
+            user=serializer.save()
+            user.role.set(roles)
             return Response({"message":"User Updated Successfully"})
         else :
             return Response({"message":serializer.errors})
