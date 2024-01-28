@@ -81,9 +81,9 @@ def get_user_permissions_list(role_list):
                             "delete": role_permission.delete,
                             # "id": role_permission.id,
                         }
-                        function_dict.update({role_permission.function.function_name: permission_dict})
+                        function_dict.update({role_permission.function_master.function_name: permission_dict})
                     except RolePermission.DoesNotExist as e:
-                        print(str(e),type(function),type(role))
+                        # print(str(e),type(function),type(role))
                         continue
                         # permission_dict = {"view": True, "create": False, "edit": False, "delete": False, "id": function.id}
                         # function_dict.update({function.function_name: permission_dict})
@@ -138,3 +138,17 @@ def get_permission_union(role_list):
     merged_permissions = merge_with_priority_multiple(users_permissions)
 
     return merged_permissions
+
+
+def get_user_permission_data(user=None):
+    if user:
+        roles=user.role.all()
+        print(roles)
+        module_list = ModuleMaster.objects.all()
+        module_dict = {}
+        for role in roles:
+            role_permissions=role.role_permissions.all()
+            for item in role_permissions:
+                print(item.function_master,"item")
+    
+    return {}

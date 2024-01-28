@@ -14,8 +14,8 @@ from . import models as account_model
 from . import serializers as se
 from app.master import serializers as master_se
 from app.master import models as master_models
-from .utils import get_permissions_list
-
+from .utils import get_permissions_list,get_user_permission_data
+from app.plant.models import Plant
 # Create your views here.
 class SimpleUserLoginView(APIView):
     def post(self,request):
@@ -41,6 +41,14 @@ class SimpleUserLoginView(APIView):
                 serializer = se.UserDetailSerializer(user, context={"request": request})
                 response["user"] = serializer.data
                 response["message"] = "Login successfully"
+                plant=Plant.objects.first()
+
+                plant_data={
+                "plant_name":plant.name,
+                "plant_id":plant.code,
+                "area_code":plant.area
+                }
+                response['plant']=plant_data
                 
                 return Response(response, status=status_code)
            else:
@@ -130,8 +138,16 @@ class  UserView(APIView):
     def get(self,request,pk=None):
         if pk:
             user=account_model.User.objects.get(pk=pk)
-            serializer=se.UserSerializer(user)
-            return Response(serializer.data)
+            serializer=se.UserDetailSerializer(user)
+            data={}
+            # data['permissions']=get_user_permission_data(user)
+            data=serializer.data
+            data.pop('role',None)
+            ids=[]
+            for item in data.pop('role',[]):
+                ids.append(item.get('id',None))
+            data['role']=ids
+            return Response(data,status=status.HTTP_200_OK)
         users=account_model.User.objects.filter()
         serializer=se.UserSerializer(users,many=True)
         return Response({"results":serializer.data})
@@ -270,6 +286,7 @@ def edit_role(request):
                 role_permission.save()
         response["permission_list"] = get_permissions_list(role.id)
         response["role"] = se.RoleSerializer(role, context={"request": request}).data
+       
         return Response(response, status=status.HTTP_200_OK)
     except IntegrityError as e:
         return Response({"error": "Role with the same name already exists"}, status=status.HTTP_400_BAD_REQUEST)
