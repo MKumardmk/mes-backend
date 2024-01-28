@@ -71,7 +71,7 @@ class UserDetailSerializer(serializers.ModelSerializer[models.User]):
             "role",
             "phone",
             "email",
-            "is_active",
+            "is_delete",
             "permission_list",
             "is_superuser",
         ]
