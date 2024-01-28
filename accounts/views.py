@@ -14,6 +14,7 @@ from . import models as account_model
 from . import serializers as se
 from app.master import serializers as master_se
 from app.master import models as master_models
+from .utils import get_permissions_list
 
 # Create your views here.
 class SimpleUserLoginView(APIView):
@@ -270,5 +271,19 @@ def get_roles(request):
         data.append(module_data)
     return Response(data)
 
+@api_view(["POST"])
+@permission_classes((AllowAny,))
+def get_permission_data(request):
+    response = {}
+    role_id = request.data.get("role_id")
+    is_clone = request.data.get("is_clone", None)
+    if role_id:
+        role = account_model.Role.objects.get(id=role_id)
+        response["role"] = se.RoleSerializer(role, context={"request": request}).data
+    else:
+        response["role"] = None
+    permission_list = get_permissions_list(role_id, is_clone)
+    response["permission_list"] = permission_list
 
+    return Response(response, status=status.HTTP_200_OK)
 
