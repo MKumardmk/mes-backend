@@ -40,7 +40,7 @@ class Role(models.Model):
     modified_by=models.ForeignKey("User",related_name="role_modified_by",on_delete=models.CASCADE,null=True,blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True, null=True, blank=True)
-    is_delete = models.BooleanField(default=True)
+    is_delete = models.BooleanField(default=False)
     record_status = models.BooleanField(default=True)
 
     def __str__(self) -> str:
