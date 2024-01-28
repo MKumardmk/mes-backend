@@ -162,7 +162,7 @@ class  UserView(APIView):
         user=account_model.User.objects.get(pk=pk)
         user.is_delete= not user.is_delete
         user.save()
-        return Response({"message":f"User {"Deactivated" if  user.is_delete else "Activated"} SuccessFully"})
+        return Response({"message":f"User {'Deactivated' if  user.is_delete else 'Activated'} SuccessFully"})
 
 @api_view(["POST"])
 @permission_classes((AllowAny,))
