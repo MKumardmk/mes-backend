@@ -40,7 +40,7 @@ class Role(models.Model):
     modified_by=models.ForeignKey("User",related_name="role_modified_by",on_delete=models.CASCADE,null=True,blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True, null=True, blank=True)
-    is_active = models.BooleanField(default=True)
+    is_delete = models.BooleanField(default=True)
     record_status = models.BooleanField(default=True)
 
     def __str__(self) -> str:
@@ -59,7 +59,6 @@ class User(AbstractBaseUser):
     department=models.CharField(max_length=50,null=True,blank=True)
     login_type = models.CharField(max_length=50, choices=LOGIN_TYPE_CHOICES)
     username=models.CharField(max_length=50,unique=True,verbose_name=_("UserName"))
-    is_active=models.BooleanField(default=True)
     is_delete=models.BooleanField(default=True)
     is_staff=models.BooleanField(default=False)
     is_superuser=models.BooleanField(default=False)

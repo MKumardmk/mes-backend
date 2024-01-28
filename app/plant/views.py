@@ -365,7 +365,6 @@ class FurnaceConfigView(APIView):
 
 class FurnaceDeactivateView(APIView):
     def post(self,request,pk=None):
-        is_active=request.data.get('is_active',True)
         furnace_config = get_object_or_404(FurnaceConfig, pk=pk)
         furnace_config.is_active = not furnace_config.is_active
         furnace_config.save()

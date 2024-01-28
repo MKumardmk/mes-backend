@@ -29,14 +29,14 @@ class SimpleUserLoginView(APIView):
            user=authenticate(request=request,username=user.username,password=password)
 
            if user:
-                print(user.is_active,"user is acitve")
-                if  not user.is_active:
+                if  user.is_delete:
                     response["message"] = "User is deactivated. Please contact admin"
                     status_code = status.HTTP_400_BAD_REQUEST
                     return Response(response, status=status_code)
                 token, created = Token.objects.get_or_create(user=user)
                 
                 status_code = status.HTTP_200_OK
+                response["token"] = token.key
                 serializer = se.UserDetailSerializer(user, context={"request": request})
                 response["user"] = serializer.data
                 response["message"] = "Login successfully"
@@ -56,7 +56,6 @@ class SSOLoginView(APIView):
 class DeactivateUser(APIView):
     def post(self,request,pk=None):
         user=account_model.User.objects.get(pk=pk)
-        user.is_active= not user.is_active
         user.is_delete= not user.is_delete
         user.save()
         return Response({"message":f"User {"Deactivated" if  user.is_delete else "Activated"} SuccessFully"})
