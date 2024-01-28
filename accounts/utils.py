@@ -13,10 +13,10 @@ def get_permissions_list(role_id=None, is_clone=False):
             if role_id:
                 role = Role.objects.get(id=role_id)
                 try:
-                    role_permission = RolePermission.objects.get(function=function, role=role)
+                    role_permission = RolePermission.objects.get(function_master=function, role=role)
                     if is_clone:
                         permission_dict = {
-                            "view": role_permission.read,
+                            "view": role_permission.view,
                             "create": role_permission.create,
                             "edit": role_permission.edit,
                             "delete": role_permission.delete,
@@ -25,14 +25,14 @@ def get_permissions_list(role_id=None, is_clone=False):
 
                     else:
                         permission_dict = {
-                            "view": role_permission.read,
+                            "view": role_permission.view,
                             "create": role_permission.create,
                             "edit": role_permission.edit,
                             "delete": role_permission.delete,
                             "id": role_permission.id,
                         }
 
-                    function_dict.update({role_permission.function.function_name: permission_dict})
+                    function_dict.update({role_permission.function_master.function_name: permission_dict})
                 except RolePermission.DoesNotExist:
                     # continue
                     permission_dict = {
@@ -75,7 +75,7 @@ def get_user_permissions_list(role_list):
                         role_permission = RolePermission.objects.get( Q(role=role),function_master=function,)
                         print(role_permission,"role perimission")
                         permission_dict = {
-                            "view": role_permission.read,
+                            "view": role_permission.view,
                             "create": role_permission.create,
                             "edit": role_permission.edit,
                             "delete": role_permission.delete,

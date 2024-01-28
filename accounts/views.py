@@ -299,22 +299,24 @@ def create_role(request):
         response = {}
 
         existing_role = account_model.Role.objects.filter(role_name__iexact=role_name).first()
+        print(existing_role,'existing_role')
         if existing_role:
             return Response({"message": "Role with the same name already exists"}, status=status.HTTP_400_BAD_REQUEST)
-        role = account_model.Role.objects.create(role_name=role_name, is_superuser=is_superuser)
+        role = account_model.Role.objects.create(role_name=role_name, is_superuser=is_superuser,created_by_id=1)
         for module_name, functions_list in permission_list.items():
             for function, permissions in functions_list.items():
                 role_permission = account_model.RolePermission.objects.create(
-                    function_id=permissions["id"],
+                    function_master_id=permissions["id"],
                     role=role,
-                    read=permissions["view"],
+                    view=permissions["view"],
                     create=permissions["create"],
                     edit=permissions["edit"],
                     delete=permissions["delete"],
+                    created_by_id=1
                 )
         response["permission_list"] = get_permissions_list(role.id)
         response["role"] = se.RoleSerializer(role, context={"request": request}).data
         return Response(response, status=status.HTTP_200_OK)
     except IntegrityError as e:
         print("exception>>>>>>>", e)
-        return Response({"error": "Role with the same name already exists...."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": "Role with the same name already exists....{e}"}, status=status.HTTP_400_BAD_REQUEST)
