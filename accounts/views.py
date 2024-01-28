@@ -60,11 +60,15 @@ class DeactivateUser(APIView):
         user.save()
         return Response({"message":f"User {"Deactivated" if  user.is_delete else "Activated"} SuccessFully"})
 class RolesView(APIView):
-    def get(self,request):
+    def get(self,request,pk=None):
+        if pk:
+            role=account_model.Role.objects.get(pk=pk)
+            serializer=se.RoleSerializer(role)
+            return Response({"result":serializer.data},status=status.HTTP_200_OK)
         roles=account_model.Role.objects.filter(record_status=True)
         serializer=se.RoleSerializer(roles,many=True)
 
-        return Response({"results":serializer.data})
+        return Response({"results":serializer.data},status=status.HTTP_200_OK)
     def post(self,request):
         try:
             role_name = request.data.get("role_name")

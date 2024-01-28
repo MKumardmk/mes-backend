@@ -10,15 +10,15 @@ class RolePermissionSerializer(serializers.ModelSerializer):
         model = models.RolePermission
         fields = '__all__'
 class RoleSerializer(serializers.ModelSerializer):
-    # total_functions = serializers.SerializerMethodField("get_total_functions")
+    total_functions = serializers.SerializerMethodField("get_total_functions")
     # total_users = serializers.SerializerMethodField("get_total_users")
     class Meta:
         model = models.Role
         fields = '__all__'
-    # def get_total_users(self, obj):
-    #     active_user_count = models.User.objects.filter(roles=obj, is_delete=False).count()
-    #     inactive_user_count = models.User.objects.filter(roles=obj, is_delete=True).count()
-    #     return {"active_user_count": active_user_count, "inactive_user_count": inactive_user_count}
+    def get_total_users(self, obj):
+        active_user_count = models.User.objects.filter(roles=obj, is_delete=False).count()
+        inactive_user_count = models.User.objects.filter(roles=obj, is_delete=True).count()
+        return {"active_user_count": active_user_count, "inactive_user_count": inactive_user_count}
 
     # def get_total_functions(self, obj):
     #     function_count = (

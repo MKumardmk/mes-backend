@@ -59,7 +59,7 @@ class User(AbstractBaseUser):
     department=models.CharField(max_length=50,null=True,blank=True)
     login_type = models.CharField(max_length=50, choices=LOGIN_TYPE_CHOICES)
     username=models.CharField(max_length=50,unique=True,verbose_name=_("UserName"))
-    is_delete=models.BooleanField(default=True)
+    is_delete=models.BooleanField(default=False)
     is_staff=models.BooleanField(default=False)
     is_superuser=models.BooleanField(default=False)
     record_status=models.BooleanField(default=True)
