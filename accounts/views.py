@@ -149,15 +149,14 @@ class  UserView(APIView):
         for key in keys_to_remove:
             data.pop(key, None)
 
-        user=account_model.User.objects.filter(pk=pk).update(**data)
         user=account_model.User.objects.filter(pk=pk).first()
-        # serializer=se.UserDetailSerializer(instance=user,data=data,partial=True)
-        # if serializer.is_valid(raise_exception=True):
-            # user=serializer.save()
-        user.role.set(roles)
-        return Response({"message":"User Updated Successfully"})
-        # else :
-        #     return Response({"message":serializer.errors})
+        serializer=se.UserDetailSerializer(instance=user,data=data,partial=True)
+        if serializer.is_valid(raise_exception=True):
+            user=serializer.save()
+            user.role.set(roles)
+            return Response({"message":"User Updated Successfully"})
+        else :
+            return Response({"message":serializer.errors})
     def patch(self,request,pk=None):
         user=account_model.User.objects.get(pk=pk)
         user.is_delete= not user.is_delete
