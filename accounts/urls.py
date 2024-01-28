@@ -14,7 +14,8 @@ urlpatterns = [
     path("clone_role/", view=views.clone_role, name="clone_role"),
     path("deactivate_role/", view=views.deactivate_role, name="deactivate_role"),
 
-    path('get-roles/',views.get_roles,name='get_roles')
+    path('get-roles/',views.get_roles,name='get_roles'),
+    
 
     # path('create-user/',views.CreateUserView.as_view(),name="create_user_view")
 

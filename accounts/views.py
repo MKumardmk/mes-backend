@@ -146,8 +146,9 @@ class  UserView(APIView):
         
     def put(self,request,pk=None):
         data=request.data
-        data.pop('username')
-        data.pop('is_superuser')
+        keys_to_remove = ['username', 'is_superuser', 'login_type']
+        for key in keys_to_remove:
+            data.pop(key, None)
 
         user=account_model.User.objects.filter(pk=pk).first()
         serializer=se.UserDetailSerializer(instance=user,data=data,partial=True)
