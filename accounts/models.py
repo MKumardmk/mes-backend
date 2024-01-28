@@ -41,6 +41,7 @@ class Role(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True, null=True, blank=True)
     is_delete = models.BooleanField(default=False)
+    record_status = models.BooleanField(default=True)
 
     def __str__(self) -> str:
         return self.role_name
