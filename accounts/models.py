@@ -47,12 +47,17 @@ class Role(models.Model):
         return self.role_name
 
 class User(AbstractBaseUser):
+    LOGIN_TYPE_CHOICES = [
+        ('sso', 'SSO'),
+        ('simple', 'Simple'),
+    ]
+
     first_name=models.CharField(max_length=100)
     last_name=models.CharField(max_length=100)
     phone=models.CharField(max_length=20)
     email=models.EmailField(null=True,blank=True)
     department=models.CharField(max_length=50,null=True,blank=True)
-    login_type=models.CharField(max_length=50)
+    login_type = models.CharField(max_length=50, choices=LOGIN_TYPE_CHOICES)
     username=models.CharField(max_length=50,unique=True,verbose_name=_("UserName"))
     is_active=models.BooleanField(default=True)
     is_delete=models.BooleanField(default=True)

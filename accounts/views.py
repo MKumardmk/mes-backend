@@ -41,7 +41,7 @@ class SimpleUserLoginView(APIView):
                 response["user"] = serializer.data
                 response["message"] = "Login successfully"
                 
-                return Response(re, status=status_code)
+                return Response(response, status=status_code)
            else:
                return Response({"message": "Password is not correct"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
@@ -51,6 +51,15 @@ class SimpleUserLoginView(APIView):
 class SSOLoginView(APIView):
     def post(self,request,):
         return Response({"message":"Login Successfully using SSO "})
+    
+
+class DeactivateUser(APIView):
+    def post(self,request,pk=None):
+        user=account_model.User.objects.get(pk=pk)
+        user.is_active= not user.is_active
+        user.is_delete= not user.is_delete
+        user.save()
+        return Response({"message":f"User {"Deactivated" if  user.is_delete else "Activated"} SuccessFully"})
 class RolesView(APIView):
     def get(self,request):
         roles=account_model.Role.objects.filter(record_status=True)
