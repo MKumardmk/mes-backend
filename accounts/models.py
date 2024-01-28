@@ -113,4 +113,4 @@ class RolePermission(models.Model):
     
 
     def __str__(self) -> str:
-        return self.function
+        return self.role.role_name

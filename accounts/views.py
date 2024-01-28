@@ -262,10 +262,10 @@ def edit_role(request):
         for module_name, functions_list in permission_list.items():
             for function, permissions in functions_list.items():
                 role_permission = account_model.RolePermission.objects.get(id=permissions["id"])
-                role_permission.view = permissions["view"]
-                role_permission.create = permissions["create"]
-                role_permission.edit = permissions["edit"]
-                role_permission.delete = permissions["delete"]
+                role_permission.view = permissions.get("view",False)
+                role_permission.create = permissions.get("create",False)
+                role_permission.edit = permissions.get("edit",False)
+                role_permission.delete = permissions.get("delete",False)
                 role_permission.save()
         response["permission_list"] = get_permissions_list(role.id)
         response["role"] = se.RoleSerializer(role, context={"request": request}).data
