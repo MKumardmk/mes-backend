@@ -197,7 +197,7 @@ def deactivate_role(request):
     except account_model.Role.DoesNotExist:
         return Response({"error": "Roles object not found"}, status=status.HTTP_404_NOT_FOUND)
 
-    user_obj = account_model.User.objects.filter(roles__id=role_id, is_delete=False)
+    user_obj = account_model.User.objects.filter(role__id=role_id, is_delete=False)
     if user_obj:
         return Response({"error": "Users associated with this roles"}, status=status.HTTP_400_BAD_REQUEST)
     if role.is_delete == False:
