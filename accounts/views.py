@@ -142,13 +142,13 @@ class  UserView(APIView):
             ids=[]
             serializer=se.UserDetailSerializer(user)
             data=serializer.data
-            if type_view=='edit':
-                roles=user.role.values('id')
-                data.pop('role',[])
-                data.pop('permission_list',{})
-                for item in roles:
-                    ids.append(item.get('id',None))
-                data['role']=ids
+            # if type_view=='edit':
+            roles=user.role.values('id')
+                # data.pop('role',[])
+                # data.pop('permission_list',{})
+            for item in roles:
+                ids.append(item.get('id',None))
+            data['role']=ids
             return Response(data,status=status.HTTP_200_OK)
         users=account_model.User.objects.filter()
         serializer=se.UserSerializer(users,many=True)
