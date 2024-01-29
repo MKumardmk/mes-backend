@@ -74,6 +74,7 @@ class UserDetailSerializer(serializers.ModelSerializer[models.User]):
             "login_type",
             "is_delete",
             "permission_list",
+            "department",
             "is_superuser",
         ]
 
