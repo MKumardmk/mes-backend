@@ -73,7 +73,6 @@ def get_user_permissions_list(role_list):
                     # function_dict = {}
                     try:
                         role_permission = RolePermission.objects.get( Q(role=role),function_master=function,)
-                        print(role_permission,"role perimission")
                         permission_dict = {
                             "view": role_permission.view,
                             "create": role_permission.create,

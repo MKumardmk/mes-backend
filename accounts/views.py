@@ -136,15 +136,17 @@ class RolesView(APIView):
 
 class  UserView(APIView):
     def get(self,request,pk=None):
+        type_view=request.query_params.get('type',)
         if pk:
             user=account_model.User.objects.get(pk=pk)
-            serializer=se.UserDetailSerializer(user)
-            data={}
-            # data['permissions']=get_user_permission_data(user)
-            data=serializer.data
-            data.pop('role',None)
             ids=[]
-            for item in data.pop('role',[]):
+            serializer=se.UserDetailSerializer(user)
+            data=serializer.data
+            # if type_view=='edit':
+            roles=user.role.values('id')
+                # data.pop('role',[])
+                # data.pop('permission_list',{})
+            for item in roles:
                 ids.append(item.get('id',None))
             data['role']=ids
             return Response(data,status=status.HTTP_200_OK)
@@ -327,11 +329,12 @@ def get_permission_data(request):
     if role_id:
         role = account_model.Role.objects.get(id=role_id)
         response["role"] = se.RoleSerializer(role, context={"request": request}).data
+        users=account_model.User.objects.filter(role=role)
+        response['users']=se.UserSerializer(users,many=True).data
     else:
         response["role"] = None
     permission_list = get_permissions_list(role_id, is_clone)
     response["permission_list"] = permission_list
-
     return Response(response, status=status.HTTP_200_OK)
 
 
