@@ -174,13 +174,13 @@ class PlantConfigView(APIView):
         # else:
         #     plant_configs = PlantConfig.objects.all()
         #     serializer = PlantConfigSerializer(plant_configs, many=True)
-    def post(self,request,pk=None):
+    def post(self,request,):
         data= request.data
         plant_config_products=data.pop('productName')
         plant_config_workshops=data.pop('workshops')
         function_json=data.pop('function')
         serializer = PlantConfigSerializer(data=data)
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
             plant_config=serializer.save()
             for plant_config_product in plant_config_products:
                 PlantConfigProduct.objects.create(plant_config=plant_config,**plant_config_product,created_by=1)
@@ -255,7 +255,9 @@ class FurnaceConfigView(APIView):
             return FurnaceConfig.objects.get(plant_id=pk)
         except FurnaceConfig.DoesNotExist:
             raise Http404
-    def get(self, request,plant_id=None, pk=None):
+    def get(self, request, pk=None):
+        plant_id=request.query_params.get('plant_id',None)
+        print(plant_id,"plant-id")
         if pk and plant_id:
             furnace_config = get_object_or_404(FurnaceConfig, plant_id=plant_id, pk=pk)
             serializer = FurnaceConfigSerializer(furnace_config)
@@ -263,7 +265,8 @@ class FurnaceConfigView(APIView):
             furnace_config = get_object_or_404(FurnaceConfig, pk=pk)
             serializer = FurnaceConfigSerializer(furnace_config)
         elif plant_id:
-            furnace_configs = FurnaceConfig.objects.filter(plant_id=plant_id)
+            furnace_configs = FurnaceConfig.objects.filter(plant_id__istartswith=plant_id)
+            print(furnace_configs,"furnace_config")
             serializer = FurnaceConfigSerializer(furnace_configs, many=True)
         else:return Response({"error": "Please provide the plant id "}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.data)

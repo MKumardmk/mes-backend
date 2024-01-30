@@ -18,7 +18,9 @@ urlpatterns = [
     # path("plant-config/", view=views.plant_config_get, name="plant_config"),
     # re_path(r'^plant-config/(?P<pk>\d+)?/?$',views.PlantConfigView.as_view(),name='plant_config'),
     path('plant-config/<str:pk>/',views.PlantConfigView.as_view(),name='plant_config'),
-    re_path(r'^furnace-config/(?P<plant_id>\d*)?/?(?P<pk>\d*)?/?$',views.FurnaceConfigView.as_view(),name='furnace_config'),
+    path('plant-config-post/',views.PlantConfigView.as_view(),name='plant_config'),
+    re_path(r'^furnace-config/(?P<pk>\d*)?/?$',views.FurnaceConfigView.as_view(),name='furnace_config'),
+    # re_path(r'^furnace-config/(?P<plant_id>\d*)?/?(?P<pk>\d*)?/?$',views.FurnaceConfigView.as_view(),name='furnace_config'),
     re_path(r'^furnace-config-steps/(?P<furnace_id>\d*)?/?$', views.FurnaceConfigStepListAPIView.as_view(), name='furnace_config_steps_list'),
 
     #  furnace config change order
