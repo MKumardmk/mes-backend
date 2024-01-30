@@ -45,9 +45,9 @@ def create_initial_data(request):
         func=FunctionMaster.objects.filter(function_name__iexact=item)
         if not func.exists():
             FunctionMaster.objects.create(module_id=item[0],function_name=item[1])
-    try:
-        user=User.objects.create_user(username="mohan",password="123")
-    except IntegrityError:
-        pass
+    # try:
+    #     user=User.objects.create_user(username="mohan",password="123")
+    # except IntegrityError:
+    #     pass
     return Response({"message":"datas created Successfully"})
         

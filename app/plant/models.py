@@ -8,17 +8,10 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from app.master.models import Master
 from app.utils.models import AuditModel
-class TimeStampModel(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True)
-    modified_at = models.DateTimeField(null=True)
-    modified_by = models.IntegerField(null=True)
-    created_by = models.IntegerField()
-
-    class Meta:
-        abstract=True
 
 
-class Plant(TimeStampModel):
+
+class Plant(AuditModel):
     name=models.CharField(max_length=100,default="")
     code=models.CharField(max_length=20,default="")
     area=models.CharField(max_length=20,default="")
@@ -27,7 +20,7 @@ class Plant(TimeStampModel):
         return self.name
 
 
-class TimeZone(models.Model):
+class TimeZone(AuditModel):
     module_name = models.CharField(max_length=50,null=True)
     description = models.CharField(max_length=100, null=True, blank=True)
     record_status = models.BooleanField(default=True)
@@ -50,7 +43,7 @@ class TimeZone(models.Model):
     
 
 
-class Language(models.Model):
+class Language(AuditModel):
 
 
 
@@ -63,7 +56,7 @@ class Language(models.Model):
 
         return results
 
-class Unit(models.Model):
+class Unit(AuditModel):
 
 
 
@@ -76,7 +69,7 @@ class Unit(models.Model):
 
         return results
 
-class Currency(models.Model):
+class Currency(AuditModel):
 
 
 
@@ -89,7 +82,7 @@ class Currency(models.Model):
 
         return results
 
-class Product(models.Model):
+class Product(AuditModel):
 
 
     @classmethod
@@ -101,7 +94,7 @@ class Product(models.Model):
 
         return results
 
-class Function(models.Model):
+class Function(AuditModel):
     
     @classmethod
     def function_procedure(cls,):
@@ -114,12 +107,12 @@ class Function(models.Model):
 
 
 
-class ERP(models.Model):
+class ERP(AuditModel):
     name = models.CharField(_("ERP"), max_length=100)
 
 
 
-class PlantConfig(models.Model):
+class PlantConfig(AuditModel):
     plant_id=models.CharField(max_length=50,unique=True,null=True,blank=True)
     plant_name = models.CharField(_("plant_config_name"), max_length=100)
     area_code = models.CharField(_("plant_config_area_code"), max_length=100)
@@ -232,7 +225,7 @@ class PlantConfig(models.Model):
         return results
     
 
-class PlantConfigProduct(models.Model):
+class PlantConfigProduct(AuditModel):
     plant_config = models.ForeignKey(PlantConfig,related_name="plant_config_products", on_delete=models.CASCADE)
     product_id = models.IntegerField()
     created_by = models.IntegerField()
@@ -244,7 +237,7 @@ class PlantConfigProduct(models.Model):
     class Meta:
         db_table = 'plant_config_product'
 
-class PlantConfigWorkshop(models.Model):
+class PlantConfigWorkshop(AuditModel):
     plant_config = models.ForeignKey(PlantConfig,related_name="plant_config_workshops", on_delete=models.CASCADE)
     workshop_id = models.IntegerField(unique=True)
     workshop_name = models.CharField(max_length=500)
@@ -257,7 +250,7 @@ class PlantConfigWorkshop(models.Model):
     class Meta:
         db_table = 'plant_config_workshop'
 
-class PlantConfigFunction(models.Model):
+class PlantConfigFunction(AuditModel):
     plant_config = models.ForeignKey(PlantConfig,related_name="plant_config_function", on_delete=models.CASCADE,null=True,blank=True)
     module_id = models.IntegerField()
     function_id = models.IntegerField()
@@ -269,7 +262,7 @@ class PlantConfigFunction(models.Model):
         unique_together = ( 'module_id', 'function_id')
 
 
-class FurnaceConfig(models.Model):
+class FurnaceConfig(AuditModel):
     plant_id = models.CharField(max_length=50)
     furnace_no = models.CharField(max_length=50,unique=True)
     furnace_description = models.CharField(max_length=500)
@@ -301,7 +294,7 @@ class FurnaceConfig(models.Model):
     record_status = models.BooleanField(default=True)
     is_active=models.BooleanField(default=True)
 
-class FurnaceProduct(models.Model):
+class FurnaceProduct(AuditModel):
     furnace_config = models.ForeignKey(FurnaceConfig,related_name="furnace_config_products",on_delete=models.CASCADE,null=True,blank=True)
     product_state = models.ForeignKey(Master,related_name="master_furnace_product_state",on_delete=models.CASCADE,null=True)
     product_type = models.ForeignKey(Master,related_name="master_furnace_product_type",on_delete=models.CASCADE,null=True)
@@ -314,7 +307,7 @@ class FurnaceProduct(models.Model):
 
 
 
-class FurnaceElectrode(models.Model):
+class FurnaceElectrode(AuditModel):
     furnace_config = models.ForeignKey(FurnaceConfig,related_name="furnace_config_electrodes",on_delete=models.CASCADE,null=True,blank=True)
     electrode_type_id = models.IntegerField(null=True)
     type_name = models.CharField(max_length=50)
@@ -331,7 +324,7 @@ class FurnaceElectrode(models.Model):
     record_status = models.BooleanField(default=True)
 
 
-class FurnaceConfigStep(models.Model):
+class FurnaceConfigStep(AuditModel):
     furnace=models.ForeignKey(FurnaceConfig,related_name="furnace_config_step",on_delete=models.CASCADE)
     step=models.CharField(max_length=10)
     order=models.SmallIntegerField()
@@ -346,7 +339,7 @@ class FurnaceConfigStep(models.Model):
     def __str__(self) -> str:
         return self.step
 
-class ControlParameter(models.Model):
+class ControlParameter(AuditModel):
     furnace_config_step=models.ForeignKey(FurnaceConfigStep,related_name="furnace_control_params",on_delete=models.CASCADE,null=True,blank=True)
     param=models.CharField(max_length=50)
     value=models.FloatField()
@@ -357,7 +350,7 @@ class ControlParameter(models.Model):
     def __str__(self) -> str:
         return self.param
     
-class Additives(models.Model):
+class Additives(AuditModel):
     furnace_config_step=models.ForeignKey(FurnaceConfigStep,related_name="furnace_additives",on_delete=models.CASCADE,blank=True,null=True)
     material=models.CharField(max_length=50)
     quantity=models.FloatField()
@@ -368,13 +361,13 @@ class Additives(models.Model):
         return self.material
     
 
-# class FurnaceProductType(models.Model):
+# class FurnaceProductType(AuditModel):
 #     name=models.CharField(max_length=50)
 
 #     def __str__(self) -> str:
 #         return self.name
     
-# # class FurnaceProductCode(models.Model):
+# # class FurnaceProductCode(AuditModel):
 # #     code=models.CharField(max_length=50)
 # #     def __str__(self) -> str:
 # #         return self.code
