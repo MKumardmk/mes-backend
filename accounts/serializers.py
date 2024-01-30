@@ -14,9 +14,7 @@ class RoleSerializer(serializers.ModelSerializer):
     total_users = serializers.SerializerMethodField("get_total_users")
     class Meta:
         model = models.Role
-        # fields = '__all__'
-        exclude=['modified_at','created_at',"created_by","modified_by",'record_status']
-
+        fields = '__all__'
     def get_total_users(self, obj):
         active_user_count = models.User.objects.filter(role=obj, is_delete=False).count()
         inactive_user_count = models.User.objects.filter(role=obj, is_delete=True).count()

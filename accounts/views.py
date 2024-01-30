@@ -369,4 +369,4 @@ def create_role(request):
         return Response(response, status=status.HTTP_200_OK)
     except IntegrityError as e:
         print("exception>>>>>>>", e)
-        return Response({"error": "Role with the same name already exists...."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": "Role with the same name already exists....{e}"}, status=status.HTTP_400_BAD_REQUEST)
