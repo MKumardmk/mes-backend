@@ -25,37 +25,38 @@ class SimpleUserLoginView(APIView):
         password= data.get("password",'')
         if not username or not password:
             return Response({"message": "Username or password is empty"}, status=status.HTTP_400_BAD_REQUEST)
-        try:
-           user=account_model.User.objects.filter(username__iexact=username).first()
-           user=authenticate(request=request,username=user.username,password=password)
+        # try:
+        user=account_model.User.objects.filter(username__iexact=username).first()
+        user=authenticate(request=request,username=user.username,password=password)
 
-           if user:
-                if  user.is_delete:
-                    response["message"] = "User is deactivated. Please contact admin"
-                    status_code = status.HTTP_400_BAD_REQUEST
-                    return Response(response, status=status_code)
-                token, created = Token.objects.get_or_create(user=user)
-                
-                status_code = status.HTTP_200_OK
-                response["token"] = token.key
-                serializer = se.UserDetailSerializer(user, context={"request": request})
-                response["user"] = serializer.data
-                response["message"] = "Login successfully"
-                plant=Plant.objects.first()
-
-                plant_data={
-                "plant_name":plant.name,
-                "plant_id":plant.code,
-                "area_code":plant.area
-                }
-                response['plant']=plant_data
-                
+        if user:
+            if  user.is_delete:
+                response["message"] = "User is deactivated. Please contact admin"
+                status_code = status.HTTP_400_BAD_REQUEST
                 return Response(response, status=status_code)
-           else:
-               return Response({"message": "Password is not correct"}, status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            print(str(e))
-            return Response({"message": "User does not exist"}, status=status.HTTP_404_NOT_FOUND)
+            token, created = Token.objects.get_or_create(user=user)
+            
+            status_code = status.HTTP_200_OK
+            response["token"] = token.key
+            serializer = se.UserDetailSerializer(user, context={"request": request})
+            response["user"] = serializer.data
+            response["message"] = "Login successfully"
+            plant=Plant.objects.first()
+
+            plant_data={
+            "plant_name":plant.plant_name,
+            "plant_id":plant.plant_id,
+            "area_code":plant.area_code
+            }
+            response['plant']=plant_data
+
+            
+            return Response(response, status=status_code)
+        else:
+            return Response({"message": "Password is not correct"}, status=status.HTTP_404_NOT_FOUND)
+        # except Exception as e:
+        #     print(str(e))
+        #     return Response({"message": "User does not exist"}, status=status.HTTP_404_NOT_FOUND)
 
 class SSOLoginView(APIView):
     def post(self,request,):
@@ -323,6 +324,7 @@ def get_roles(request):
 @api_view(["POST"])
 @permission_classes((AllowAny,))
 def get_permission_data(request):
+    print('get_permission_data')
     response = {}
     role_id = request.data.get("role_id")
     is_clone = request.data.get("is_clone", None)
@@ -333,7 +335,8 @@ def get_permission_data(request):
         response['users']=se.UserSerializer(users,many=True).data
     else:
         response["role"] = None
-    permission_list = get_permissions_list(role_id, is_clone)
+    permission_list = get_permissions_list(role_id,)
+    print(permission_list)
     response["permission_list"] = permission_list
     return Response(response, status=status.HTTP_200_OK)
 

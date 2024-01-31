@@ -36,7 +36,7 @@ class Module(TimeStampModel):
     
 class Role(models.Model):
     role_name = models.CharField(verbose_name=_("Name of Role"), max_length=255)
-    created_by=models.ForeignKey("User",related_name="role_created_by",on_delete=models.CASCADE)
+    created_by=models.ForeignKey("User",related_name="role_created_by",on_delete=models.CASCADE,null=True,blank=True)
     modified_by=models.ForeignKey("User",related_name="role_modified_by",on_delete=models.CASCADE,null=True,blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True, null=True, blank=True)

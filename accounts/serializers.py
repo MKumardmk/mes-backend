@@ -68,8 +68,8 @@ class UserDetailSerializer(serializers.ModelSerializer[models.User]):
             "first_name",
             "last_name",
             "username",
-            "role",
             "phone",
+            "role",
             "email",
             "login_type",
             "is_delete",
@@ -83,6 +83,7 @@ class UserDetailSerializer(serializers.ModelSerializer[models.User]):
         for role in obj.role.all():
             role_list.append(role.id)
         permission_list = get_permission_union(role_list)
+        print(permission_list)
         return permission_list
 
 class UserSerializer(serializers.ModelSerializer):
@@ -112,3 +113,14 @@ class FunctionSerializer(serializers.ModelSerializer):
         model = models.Function
         fields = '__all__'
 
+class CreateSuperAdminUserSerializer(serializers.Serializer):
+    first_name=serializers.CharField(required=True)
+    last_name=serializers.CharField(required=True)
+    phone=serializers.CharField(required=True)
+    email=serializers.EmailField(required=False)
+    department=serializers.CharField(required=False)
+    username=serializers.CharField(required=True)
+    password=serializers.CharField(required=True)
+    plant_name=serializers.CharField(required=True)
+    plant_id=serializers.CharField(required=True)
+    area_code=serializers.CharField(required=True)

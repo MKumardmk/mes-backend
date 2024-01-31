@@ -230,4 +230,14 @@ class FurnaceConfigSerializer(serializers.ModelSerializer):
 
 
 
-
+class CreateSuperAdminUserSerializer(serializers.Serializer):
+    first_name=serializers.CharField(required=True)
+    last_name=serializers.CharField(required=True)
+    phone=serializers.CharField(required=True)
+    email=serializers.EmailField(required=False)
+    department=serializers.CharField(required=False)
+    username=serializers.CharField(required=True)
+    password=serializers.CharField(required=True)
+    plant_name=serializers.CharField(required=True)
+    plant_id=serializers.CharField(required=True)
+    area_code=serializers.CharField(required=True)
