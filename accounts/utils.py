@@ -33,7 +33,8 @@ def get_permissions_list(role_id=None, is_clone=False):
                         }
 
                     function_dict.update({role_permission.function_master.function_name: permission_dict})
-                except RolePermission.DoesNotExist:
+                except RolePermission.DoesNotExist as e:
+                    print(str(e))
                     # continue
                     permission_dict = {
                         "view": True,
@@ -45,15 +46,19 @@ def get_permissions_list(role_id=None, is_clone=False):
                     function_dict.update({function.function_name: permission_dict})
 
             else:
+                print("else called")
                 permission_dict = {"view": True, "create": False, "edit": False, "delete": False, "id": function.id}
                 function_dict.update({function.function_name: permission_dict})
+            print(function_dict)
         module_dict.update({module.module_name: function_dict})
+        # module_dict[module.module_name] =function_dict
     return module_dict
 
 
 
 
 def get_user_permissions_list(role_list):
+    print('get_user_permission_data')
     # import pudb
     # pudb.set_trace()
     module_list = ModuleMaster.objects.all()
@@ -71,26 +76,27 @@ def get_user_permissions_list(role_list):
                 permission_dict = {}
                 for function in function_list:
                     # function_dict = {}
-                    try:
-                        role_permission = RolePermission.objects.get( Q(role=role),function_master=function,)
-                        permission_dict = {
-                            "view": role_permission.view,
-                            "create": role_permission.create,
-                            "edit": role_permission.edit,
-                            "delete": role_permission.delete,
-                            # "id": role_permission.id,
-                        }
-                        function_dict.update({role_permission.function_master.function_name: permission_dict})
-                    except RolePermission.DoesNotExist as e:
-                        # print(str(e),type(function),type(role))
-                        continue
-                        # permission_dict = {"view": True, "create": False, "edit": False, "delete": False, "id": function.id}
-                        # function_dict.update({function.function_name: permission_dict})
+                    role_permission = RolePermission.objects.get(Q(role=role),Q(function_master=function),)
+                    permission_dict = {
+                        "view": role_permission.view,
+                        "create": role_permission.create,
+                        "edit": role_permission.edit,
+                        "delete": role_permission.delete,
+                        # "id": role_permission.id,
+                    }
+                    print(permission_dict)
+                    function_dict.update({role_permission.function_master.function_name: permission_dict})
+                    # print(str(e),"error")
+                    # # print(str(e),type(function),type(role))
+                    # continue
+                    # permission_dict = {"view": True, "create": False, "edit": False, "delete": False, "id": function.id}
+                    # function_dict.update({function.function_name: permission_dict})
 
                 module_dict.update({module.module_name: function_dict})
             role_dict.update({role.role_name: module_dict})
             # role_dict = {role.role_name: module_dict}
             role_permission_list.append(role_dict)
+    # print(role_permission_list,'role_permission_list')
     return role_permission_list
 
 

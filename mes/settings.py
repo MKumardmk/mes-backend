@@ -83,16 +83,16 @@ TEMPLATES = [
 WSGI_APPLICATION = 'mes.wsgi.application'
 
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mes-dev-db',
-        'USER': 'postgres',
-        'PASSWORD': 'Test@123',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'mes-dev-db',
+#         'USER': 'postgres',
+#         'PASSWORD': 'Test@123',
+#         'HOST': 'localhost',
+#         'PORT': '5432',
+#     }
+# }
 
 import os
 DATABASES = {

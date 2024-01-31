@@ -69,7 +69,7 @@ def function_list(request):
         return Response(res)
 class FunctionListView(APIView):
     def get(self,request,):
-        data=ModuleMaster.objects.all()
+        data=ModuleMaster.objects.filter(record_status=True)
         serializer=ModuleMasterSerializer(data,many=True)
         return Response(serializer.data)
     

@@ -16,10 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from .initial_data import create_initial_data
+from .initial_data import CreateSuperUserView
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',create_initial_data,name='create_initial_data'),
+    path('',CreateSuperUserView.as_view(),name='create_initial_data'),
      path("api/account/", include("accounts.urls", namespace="account")),
 
      path("api/plant/", include("app.plant.urls", namespace="plant")),
