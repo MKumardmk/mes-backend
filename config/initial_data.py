@@ -121,8 +121,9 @@ class CreateSuperUserView(APIView):
             plant_id=data.pop('plant_id','')
             area_code=data.pop('area_code','')
             plant_name= data.pop('plant_name','')
+            plant_count=Plant.objects.all().count()
             plant=Plant.objects.filter(plant_name__iexact=plant_name,plant_id__iexact=plant_id,area_code__iexact=area_code,)
-            if not plant.exists():
+            if not plant.exists() and plant_count<=0:
                 Plant.objects.create(plant_name=plant_name,plant_id=plant_id,area_code=area_code,created_by=1)
             for item in master:
                 existing_master=Master.objects.filter(category__iexact=item[0],value__iexact=item[1])

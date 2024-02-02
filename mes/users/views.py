@@ -55,6 +55,8 @@ class SimpleUserLoginView(APIView):
             }
             response['plant']=plant_data
             return Response(response, status=status_code)
+        elif not user:
+            return Response({"message":"User Not Found"})
         else:
             return Response({"message": "Password is not correct"}, status=status.HTTP_404_NOT_FOUND)
         # except Exception as e:
