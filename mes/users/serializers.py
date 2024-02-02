@@ -165,7 +165,7 @@ class UserListSerializer(serializers.ModelSerializer[UserType]):
 class UserDetailSerializer(serializers.ModelSerializer[UserType]):
     roles = RoleSerializer(many=True, required=False)
     permission_list = serializers.SerializerMethodField("get_permission_list")
-    is_superuser = serializers.SerializerMethodField("get_is_superuser")
+    # is_superuser = serializers.SerializerMethodField("get_is_superuser")
 
     def get_permission_list(self, obj):
         role_list = []
@@ -175,12 +175,12 @@ class UserDetailSerializer(serializers.ModelSerializer[UserType]):
         permission_list = get_permission_union(role_list)
         return permission_list
 
-    def get_is_superuser(self, obj):
-        is_superuser = False
-        for role in obj.roles.all():
-            if role.is_superuser == True:
-                is_superuser = True
-        return is_superuser
+    # def get_is_superuser(self, obj):
+    #     is_superuser = False
+    #     for role in obj.roles.all():
+    #         if role.is_superuser == True:
+    #             is_superuser = True
+    #     return is_superuser
 
     class Meta:
         model = user_model.User

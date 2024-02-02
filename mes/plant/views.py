@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from .models import TimeZone,Language,Unit,Currency,Product,Function,ERP,PlantConfig,PlantConfigProduct,PlantConfigWorkshop,PlantConfigFunction
-from mes.furnace.models import FurnaceConfig,FurnaceConfigStep,FurnaceElectrode,FurnaceProduct
+from mes.furnace.models import FurnaceConfig,FurnaceConfigStep,FurnaceElectrode,FurnaceProduct,ControlParameter,Additive
 from .serializers import ERPSerializer,PlantConfigSerializer,FurnaceConfigSerializer
 from rest_framework import status ,viewsets ,generics 
 import json
@@ -307,7 +307,7 @@ class FurnaceConfigView(APIView):
         # print(new_electrode_data_json,'new_electrode_data_json')
         # if serializer.is_valid():
         workshop_id=data.pop('workshop',None)
-        furnace_config=plant_model.FurnaceConfig.objects.create(workshop_id=workshop_id,**data)
+        furnace_config=FurnaceConfig.objects.create(workshop_id=workshop_id,**data)
             # furnace_config = serializer.save(power_delivery_id=request.data['power_delivery_id'],electrode_type_)
         for electrode_data_json in new_electrode_data_json:
             data_json = {}
@@ -413,16 +413,16 @@ class FurnaceConfigStepListAPIView(APIView):
         for index,item in enumerate(output_data,start=1):
           control_parameters=  item.pop('control_parameters', [])
           additives_data=item.pop('additives', [])
-          furnace_config_step = plant_model.FurnaceConfigStep.objects.create(furnace_id=furnace_id,order=index,**item)
+          furnace_config_step = FurnaceConfigStep.objects.create(furnace_id=furnace_id,order=index,**item)
 
           for control_param_data in control_parameters:
             # plant_model.ControlParameter.objects.create(furnace_config_step=furnace_config_step, **control_param_data)
-            plant_model.ControlParameter.objects.create(furnace_config_step=furnace_config_step, **control_param_data)
+            ControlParameter.objects.create(furnace_config_step=furnace_config_step, **control_param_data)
         for additive_data in additives_data:
-            plant_model.Additives.objects.create(furnace_config_step=furnace_config_step, **additive_data)
+            Additive.objects.create(furnace_config_step=furnace_config_step, **additive_data)
         return Response({"message":"Furnace Details added Successfully"}, status=201, )
     def get(self,request,furnace_id):
-        data=plant_model.FurnaceConfigStep.objects.filter(furnace_id=furnace_id)
+        data=FurnaceConfigStep.objects.filter(furnace_id=furnace_id)
         serializer=se.FurnaceConfigStepSerializer(data,many=True)
         return Response({"data":serializer.data})
     
@@ -469,10 +469,10 @@ class FurnaceConfigStepListAPIView(APIView):
             additives_data=item.pop('additives', [])
             print(type(pk_id))
             if pk_id:
-                furnace_config_step = plant_model.FurnaceConfigStep.objects.filter(Q(pk=pk_id), furnace_id=furnace_id).update( **item)
-                furnace_config_step= plant_model.FurnaceConfigStep.objects.filter(pk=pk_id).first()
+                furnace_config_step = FurnaceConfigStep.objects.filter(Q(pk=pk_id), furnace_id=furnace_id).update( **item)
+                furnace_config_step= FurnaceConfigStep.objects.filter(pk=pk_id).first()
             else:
-                furnace_config_step = plant_model.FurnaceConfigStep.objects.create(furnace_id=furnace_id,**item)
+                furnace_config_step = FurnaceConfigStep.objects.create(furnace_id=furnace_id,**item)
                 print("else called")
 
 
@@ -487,24 +487,24 @@ class FurnaceConfigStepListAPIView(APIView):
                 print("control_param_data",control_param_data)
                 
                 if id:
-                    plant_model.ControlParameter.objects.filter(furnace_config_step=furnace_config_step, pk=id).update(**control_param_data)
+                    ControlParameter.objects.filter(furnace_config_step=furnace_config_step, pk=id).update(**control_param_data)
                 else:
-                    plant_model.ControlParameter.objects.create(furnace_config_step=furnace_config_step, **control_param_data)
+                    ControlParameter.objects.create(furnace_config_step=furnace_config_step, **control_param_data)
             for additive_data in additives_data:
                 print(type(furnace_config_step))
                 
                 id=additive_data.pop('id',None)
                 
                 if id:
-                    plant_model.Additives.objects.filter(furnace_config_step=furnace_config_step,pk=id).update(**additive_data)
+                    Additive.objects.filter(furnace_config_step=furnace_config_step,pk=id).update(**additive_data)
                 else:
-                    plant_model.Additives.objects.create(furnace_config_step=furnace_config_step, **additive_data)
+                    Additive.objects.create(furnace_config_step=furnace_config_step, **additive_data)
         print(ids,"ids in put")
-        plant_model.FurnaceConfigStep.objects.filter(furnace_id=furnace_id).exclude(id__in=ids).delete()
+        FurnaceConfigStep.objects.filter(furnace_id=furnace_id).exclude(id__in=ids).delete()
         return Response({"message":"SuccessFully Updated"})
     def delete(self,request,furnace_id=None):
         try:
-            furnace_step=plant_model.FurnaceConfigStep.objects.filter(pk=furnace_id).first()
+            furnace_step=FurnaceConfigStep.objects.filter(pk=furnace_id).first()
             furnace_step.delete()
         except AttributeError :
             pass
@@ -541,7 +541,7 @@ class FurnaceConfigChangeOrder(APIView):
     def post(self,request):
         data=request.data.get('data',[])
         for item in data:
-            furnace_step=plant_model.FurnaceConfigStep.objects.filter(pk=item.pop("id")).update(**item)
+            furnace_step=FurnaceConfigStep.objects.filter(pk=item.pop("id")).update(**item)
         return Response({"message":"Furnace Config Updated Successfully"})
 
 

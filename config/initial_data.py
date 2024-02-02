@@ -8,7 +8,7 @@ from mes.users import serializers as se
 from mes.plant.models import Plant,PlantConfig,PlantConfigFunction,PlantConfigProduct,PlantConfigWorkshop
 from mes.utils.models import Master,Module,Function
 module_data=[
-    'User Control Access',
+    'User Access Control',
     'Master Data',
     'Core Process',
     'Lab Analysis',

@@ -146,8 +146,12 @@ class  UserView(APIView):
         if pk:
             user=account_model.User.objects.get(pk=pk)
             ids=[]
-            serializer=se.UserDetailSerializer(user)
-            data=serializer.data
+            if type_view=='edit':
+                serializer=se.UserSerializer(user)
+                data=serializer.data
+            else:
+                serializer=se.UserDetailSerializer(user,context={'request': request})
+                data=serializer.data
             # if type_view=='edit':
             roles=user.roles.values('id')
                 # data.pop('role',[])
@@ -167,7 +171,7 @@ class  UserView(APIView):
             return Response({"message":f'User {user.username} added SuccessFully'})
         
     def put(self,request,pk=None):
-        roles = request.data.get('role',[])
+        roles = request.data.get('roles',[])
         data=request.data
         keys_to_remove = ['username', 'is_superuser', 'login_type']
         for key in keys_to_remove:
@@ -340,7 +344,7 @@ def get_permission_data(request):
         response['users']=se.UserSerializer(users,many=True).data
     else:
         response["role"] = None
-    permission_list = get_permissions_list(role_id,)
+    permission_list = get_permissions_list(role_id,clone_role)
     print(permission_list)
     response["permission_list"] = permission_list
     return Response(response, status=status.HTTP_200_OK)
@@ -363,15 +367,17 @@ def create_role(request):
         role = account_model.Role.objects.create(role_name=role_name, is_superuser=is_superuser,created_by_id=1)
         for module_name, functions_list in permission_list.items():
             for function, permissions in functions_list.items():
-                role_permission = account_model.RolePermission.objects.create(
-                    function_master_id=permissions["id"],
-                    role=role,
-                    view=permissions["view"],
-                    create=permissions["create"],
-                    edit=permissions["edit"],
-                    delete=permissions["delete"],
-                    created_by_id=1
-                )
+                pass
+                # role_permission = account_model.RolePermission.objects.create(
+                #     function_master_id=permissions["id"],
+                #     role=role,
+                #     view=permissions["view"],
+                #     create=permissions["create"],
+                #     edit=permissions["edit"],
+                #     delete=permissions["delete"],
+                #     created_by_id=1
+                # )
+
         response["permission_list"] = get_permissions_list(role.id)
         response["role"] = se.RoleSerializer(role, context={"request": request}).data
         return Response(response, status=status.HTTP_200_OK)
