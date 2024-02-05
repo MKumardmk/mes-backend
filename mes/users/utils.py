@@ -1,8 +1,16 @@
 from .models import Role,RolePermission
 from .models import Function,Module
 from django.db.models import Q
+from mes.plant.models import PlantConfig
+
 
 def get_permissions_list(role_id=None, is_clone=False):
+    plant_config=PlantConfig.objects.first()
+    plant_config_function=plant_config.plant_config_function.all()
+
+    for item in plant_config_function:
+        print(type(item))
+
     module_list = Module.objects.all()
     module_dict = {}
     for module in module_list:
@@ -45,13 +53,45 @@ def get_permissions_list(role_id=None, is_clone=False):
                     function_dict.update({function.function_name: permission_dict})
 
             else:
-                permission_dict = {"view": True, "create": False, "edit": False, "delete": False, "id": function.id}
+                permission_dict = {"view": False, "create": False, "edit": False, "delete": False, "id": function.id}
                 function_dict.update({function.function_name: permission_dict})
         module_dict.update({module.module_name: function_dict})
     return module_dict
 
 
+def get_permissions_list(role_id=None, is_clone=False):
+    plant_config=PlantConfig.objects.first()
+    plant_config_function=plant_config.plant_config_function.all()
+    module_dict = {}
+    function_dict = {}
 
+
+    for item in plant_config_function:
+        module_name = item.module.module_name
+        function_name = item.function.function_name
+        module_dict.setdefault(module_name, {}).setdefault(function_name, {})
+        # if 'System Admin'not in module_name: 
+        print("callednas;ldkfj")
+
+        if role_id:
+            role = Role.objects.get(id=role_id)
+            # try:
+            role_permission = RolePermission.objects.get(function_master=item.function, role=role)
+            permission_dict = {
+                "view": role_permission.view,
+                "create": role_permission.create,
+                "edit": role_permission.edit,
+                "delete": role_permission.delete,
+                "id": item.function.id if is_clone else role_permission.id,
+            }
+            module_dict[item.module.module_name][item.function.function_name]=permission_dict
+        else:
+            permission_dict = {"view": False, "create": False, "edit": False, "delete": False, "id": item.function.id}
+            module_dict[module_name][function_name]=permission_dict
+
+
+    return module_dict
+        
 
 def get_user_permissions_list(role_list):
     # import pudb

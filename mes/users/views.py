@@ -13,10 +13,12 @@ from rest_framework.authtoken.models import Token
 from rest_framework import viewsets
 
 from . import models as account_model
+from mes.utils.models import Function
 from . import serializers as se
 from .utils import get_permissions_list
 from .models import User
 from django.contrib.auth.hashers import make_password
+from django.db.models import Q
 
 
 from mes.plant.models import Plant
@@ -288,15 +290,32 @@ def edit_role(request):
         role.role_name = role_name
         role.is_superuser = is_superuser
         role.save()
+
         for module_name, functions_list in permission_list.items():
             for function, permissions in functions_list.items():
-                role_permission = account_model.RolePermission.objects.get(id=permissions["id"])
-                role_permission.view = permissions.get("view",False)
-                role_permission.create = permissions.get("create",False)
-                role_permission.edit = permissions.get("edit",False)
-                role_permission.delete = permissions.get("delete",False)
-                role_permission.save()
-        response["permission_list"] = get_permissions_list(role.id)
+                print(function)
+                # print(permissions,"pwemissions",function)
+                function=Function.objects.filter(function_name=function).first()
+                try:
+                    role_permission = account_model.RolePermission.objects.get(role=role,function_master=function)
+                    role_permission.view = permissions.get("view",False)
+                    role_permission.create = permissions.get("create",False)
+                    role_permission.edit = permissions.get("edit",False)
+                    role_permission.delete = permissions.get("delete",False)
+                    role_permission.save()
+                except (account_model.RolePermission.DoesNotExist, KeyError):
+                    pass
+                    # role_permission = account_model.RolePermission.objects.create(
+                    #         function_master=function,
+                    #         role=role,
+                    #         view=permissions["view"],
+                    #         create=permissions["create"],
+                    #         edit=permissions["edit"],
+                    #         delete=permissions["delete"],
+                    #         created_by_id=1
+                    #     )
+        print("called insias;ldfkj;lsdfkj ")
+        # response["permission_list"] = get_permissions_list(role.id)
         response["role"] = se.RoleSerializer(role, context={"request": request}).data
        
         return Response(response, status=status.HTTP_200_OK)
@@ -333,7 +352,6 @@ def get_roles(request):
 @api_view(["POST"])
 @permission_classes((AllowAny,))
 def get_permission_data(request):
-    print('get_permission_data')
     response = {}
     role_id = request.data.get("role_id")
     is_clone = request.data.get("is_clone", None)
@@ -345,7 +363,6 @@ def get_permission_data(request):
     else:
         response["role"] = None
     permission_list = get_permissions_list(role_id,clone_role)
-    print(permission_list)
     response["permission_list"] = permission_list
     return Response(response, status=status.HTTP_200_OK)
 
@@ -363,20 +380,20 @@ def create_role(request):
         existing_role = account_model.Role.objects.filter(role_name__iexact=role_name).first()
         print(existing_role,'existing_role')
         if existing_role:
-            return Response({"message": "Role with the same name already exists"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": "Role with the same name already existse"}, status=status.HTTP_400_BAD_REQUEST)
         role = account_model.Role.objects.create(role_name=role_name, is_superuser=is_superuser,created_by_id=1)
         for module_name, functions_list in permission_list.items():
             for function, permissions in functions_list.items():
-                pass
-                # role_permission = account_model.RolePermission.objects.create(
-                #     function_master_id=permissions["id"],
-                #     role=role,
-                #     view=permissions["view"],
-                #     create=permissions["create"],
-                #     edit=permissions["edit"],
-                #     delete=permissions["delete"],
-                #     created_by_id=1
-                # )
+                print(permissions)
+                role_permission = account_model.RolePermission.objects.create(
+                    function_master_id=permissions["id"],
+                    role=role,
+                    view=permissions["view"],
+                    create=permissions["create"],
+                    edit=permissions["edit"],
+                    delete=permissions["delete"],
+                    created_by_id=1
+                )
 
         response["permission_list"] = get_permissions_list(role.id)
         response["role"] = se.RoleSerializer(role, context={"request": request}).data

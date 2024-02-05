@@ -26,7 +26,7 @@ function_data=[
 (2, 'Active Furnace List'),
 (2, 'Customer Specifications'),
 (3, 'Heat Maintenance'),
-(3, 'BIn Contents'),
+(3, 'Bin Content'),
 (3, 'Production Schedule'),
 (3, 'Silicon Grade Material Maintenance'),
 (3, 'Silicon Grade Heat Maintenance'),
