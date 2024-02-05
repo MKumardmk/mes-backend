@@ -227,6 +227,7 @@ class PlantConfigView(APIView):
                 workshop=FurnaceConfig.objects.filter(workshop_id=plant_workshop.get('workshop_id'))
                 if workshop.exists():
                     plant_workshop.pop('record_status',None)
+                plant_workshop.pop('is_deactivate',None)
                 if pk_plant_workshop_id:
                     PlantConfigWorkshop.objects.filter(pk=pk_plant_workshop_id,plant_config=plant_config).update(**plant_workshop)
                 else:

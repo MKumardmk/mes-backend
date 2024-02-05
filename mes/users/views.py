@@ -140,6 +140,11 @@ class RolesView(APIView):
     #         return Response(response, status=status.HTTP_200_OK)
     #     except IntegrityError as e:
     #         return Response({"error": "Role with the same name already exists"}, status=status.HTTP_400_BAD_REQUEST)
+    def patch(self,request,pk=None):
+        role=account_model.Role.objects.get(pk=pk)
+        role.is_delete= not role.record_status
+        role.save()
+        return Response({"message":f"User {'Deactivated' if  role.is_delete else 'Activated'} SuccessFully"})
 
 
 class  UserView(APIView):
