@@ -45,9 +45,16 @@ class PlantConfigProductSerializer(serializers.ModelSerializer):
     #     return super().to_internal_value(data)
 
 class PlantConfigWorkshopSerializer(serializers.ModelSerializer):
+    is_deactivate=serializers.SerializerMethodField()
     class Meta:
         model = PlantConfigWorkshop
         fields = '__all__'
+
+    def get_is_deactivate(self,obj):
+        furnace=FurnaceConfig.objects.filter(workshop=obj)
+        if furnace.exists():
+            return False
+        else:return True
 
 class PlantConfigFunctionSerializer(serializers.ModelSerializer):
     class Meta:

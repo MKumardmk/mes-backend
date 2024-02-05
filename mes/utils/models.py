@@ -10,7 +10,6 @@ class BaseModel(models.Model):
     modified_at = models.DateTimeField(auto_now=True, )
     created_at = models.DateTimeField(auto_now_add=True)
     record_status=models.BooleanField(default=True)
-
     class Meta:
         abstract = True
 

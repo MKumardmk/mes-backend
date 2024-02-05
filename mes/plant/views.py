@@ -224,6 +224,9 @@ class PlantConfigView(APIView):
                 plant_product_ids.append(product.id)
             for plant_workshop in plant_config_workshops:
                 pk_plant_workshop_id = plant_workshop.pop('id',None)
+                workshop=FurnaceConfig.objects.filter(workshop_id=plant_workshop.get('workshop_id'))
+                if workshop.exists():
+                    plant_workshop.pop('record_status',None)
                 if pk_plant_workshop_id:
                     PlantConfigWorkshop.objects.filter(pk=pk_plant_workshop_id,plant_config=plant_config).update(**plant_workshop)
                 else:

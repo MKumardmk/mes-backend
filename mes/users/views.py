@@ -75,7 +75,7 @@ class RolesView(APIView):
             role=account_model.Role.objects.get(pk=pk)
             serializer=se.RoleSerializer(role)
             return Response({"result":serializer.data},status=status.HTTP_200_OK)
-        roles=account_model.Role.objects.filter(record_status=True)
+        roles=account_model.Role.objects.filter(record_status=True).exclude(role_name="SuperAdmin")
         serializer=se.RoleSerializer(roles,many=True)
 
         return Response({"results":serializer.data},status=status.HTTP_200_OK)

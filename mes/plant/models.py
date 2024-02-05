@@ -220,12 +220,7 @@ class PlantConfig(BaseModel):
 class PlantConfigProduct(BaseModel):
     plant_config = models.ForeignKey(PlantConfig,related_name="plant_config_products", on_delete=models.CASCADE)
     product_id = models.IntegerField()
-    created_by = models.IntegerField()
-    modified_by = models.IntegerField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    modified_at = models.DateTimeField(null=True, blank=True)
-    record_status = models.BooleanField(default=True)
-
+    
     class Meta:
         db_table = 'plant_config_product'
 
@@ -233,11 +228,7 @@ class PlantConfigWorkshop(BaseModel):
     plant_config = models.ForeignKey(PlantConfig,related_name="plant_config_workshops", on_delete=models.CASCADE)
     workshop_id = models.IntegerField(unique=True)
     workshop_name = models.CharField(max_length=500)
-    created_by = models.IntegerField()
-    modified_by = models.IntegerField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    modified_at = models.DateTimeField(null=True, blank=True)
-    record_status = models.BooleanField(default=True)
+    
 
     class Meta:
         db_table = 'plant_config_workshop'
