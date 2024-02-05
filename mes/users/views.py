@@ -367,7 +367,7 @@ def get_permission_data(request):
         response['users']=se.UserSerializer(users,many=True).data
     else:
         response["role"] = None
-    permission_list = get_permissions_list(role_id,clone_role)
+    permission_list = get_permissions_list(role_id,is_clone)
     response["permission_list"] = permission_list
     return Response(response, status=status.HTTP_200_OK)
 
