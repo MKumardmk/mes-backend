@@ -227,6 +227,7 @@ class PlantConfigView(APIView):
                 workshop=FurnaceConfig.objects.filter(workshop_id=plant_workshop.get('workshop_id'))
                 if workshop.exists():
                     plant_workshop.pop('record_status',None)
+                plant_workshop.pop('is_deactivate',None)
                 if pk_plant_workshop_id:
                     PlantConfigWorkshop.objects.filter(pk=pk_plant_workshop_id,plant_config=plant_config).update(**plant_workshop)
                 else:
@@ -328,6 +329,8 @@ class FurnaceConfigView(APIView):
         furnace_product_data=data.pop('products')
         furnace_config = FurnaceConfig.objects.get(pk=pk)
         serializer = FurnaceConfigSerializer(furnace_config, data=request.data)
+        electrode_type_id=request.data.get('electrode_type_id',)
+        print(electrode_type_id,"electrode_type_id")
 
         key_mappings = {
             'id':'id',
@@ -343,7 +346,6 @@ class FurnaceConfigView(APIView):
 
         new_product_data_json = []
 
-
         for item in furnace_product_data:
             
             product_state = item['productState']['value']
@@ -356,7 +358,10 @@ class FurnaceConfigView(APIView):
                 new_product_data_json.append(new_item)
 
         if serializer.is_valid():
+            electrode_type_id=request.data.get('electrode_type_id',serializer.validated_data.get('electrode_type_id'))
             furnace_config=serializer.save()
+            furnace_config.electrode_type_id=electrode_type_id
+            furnace_config.save()
             for furnace_electrode in new_electrode_data_json:
                 FurnaceElectrode.objects.filter(pk=furnace_electrode.pop('id'),furnace_config=furnace_config).update(**furnace_electrode)
             for product_data in new_product_data_json:
