@@ -7,6 +7,7 @@ from rest_framework import status
 from mes.users import serializers as se
 from mes.utils.models import Master,Module,Function
 from mes.unit.models import GlobalUnit
+from mes.plant.models import Plant
 module_data=[
     'User Access Control',
     'Master Data',
@@ -41,6 +42,9 @@ function_data=[
 (6,'Plant Configuration'),
 (6,'Furnace Configuration')
 ]
+core_paste_casing='3300300 - Electrode 1146mm Yonvey'
+
+
 master=[
     ('UNITSYSTEM',    'Metric System'),
     ('UNITSYSTEM',    'Imperial System'  ),
@@ -88,9 +92,9 @@ master=[
     ('LIME',  '3301824 - Dolomite Quicklime Fines' ),
     ('SLAG',  'D020 - Silicon Slag'  ),
     ('SKULL', '6605124 - Screen Visor Wire Skullgard HAT 8X17-1/2'),
-    ('CORE',  '3300300 - Electrode 1146mm Yonvey'),
-    ('PASTE', '3300300 - Electrode 1146mm Yonvey'),
-    ('CASING',    '3300300 - Electrode 1146mm Yonvey'),
+    ('CORE',  core_paste_casing),
+    ('PASTE', core_paste_casing),
+    ('CASING',    core_paste_casing),
     ('WORKSHOPNO',    '1'),
     ('CONTROLPARAMETERS', 'Temp' ),
     ('CONTROLPARAMETERS', 'Time' ),
@@ -153,6 +157,11 @@ units=[
         "name": "N Pressure",
         "imperial":"psi",
         "metric":"Pa"
+    },
+     {
+        "name":"Core Mass/Length",
+        "imperial":"lb/in",
+        "metric":"kg/cm"
     },
     {
         "name":"Paste Mass/Length",
@@ -249,9 +258,9 @@ class CreateSuperUserView(APIView):
              user=user.first()
         for item in Function.objects.all():
             try:
-                function=RolePermission.objects.filter(function_master_id=item.id)
+                permission=RolePermission.objects.filter(function_master_id=item.id)
                 if item.module.module_name=='System Admin' and item.function_name=='Plant Configuration':
-                    if not function.exists():
+                    if not permission.exists():
                         RolePermission.objects.create(
                                     function_master_id=item.id,
                                     role_id=role.id,

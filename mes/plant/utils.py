@@ -1,7 +1,7 @@
 
 from mes.users.models import User,RolePermission
 
-def set_first_user_permissions(plant_config,is_edit=True):
+def set_first_user_permissions(plant_config,):
     user=User.objects.all()
     user_count=user.count()
     if user_count >1:

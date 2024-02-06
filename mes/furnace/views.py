@@ -4,22 +4,15 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
-from .models import TimeZone,Language,Unit,Currency,Product,Function,ERP,PlantConfig,PlantConfigProduct,PlantConfigWorkshop,PlantConfigFunction
-from mes.furnace.models import FurnaceConfig,FurnaceConfigStep,FurnaceElectrode,FurnaceProduct
-from .serializers import ERPSerializer,PlantConfigSerializer,FurnaceConfigSerializer
-from rest_framework import status ,viewsets ,generics 
-import json
-from datetime import datetime
+from mes.furnace.models import FurnaceConfig,FurnaceElectrode,FurnaceProduct
+from .serializers import FurnaceConfigSerializer
+from rest_framework import status  
 from django.http import Http404
 from django.shortcuts import get_object_or_404    
-from . import serializers as se 
 from . import models as plant_model
-from django.db.models import Q
-from mes.utils.models  import Module
-from .utils import set_first_user_permissions
-from mes.utils.serializers import ModuleSerializer
 
-
+def change_key_names(d, key_mappings):
+    return {key_mappings.get(k, k): v for k, v in d.items()}
 class FurnaceConfigView(APIView):
     def get_object(self, pk):
         try:
@@ -47,7 +40,6 @@ class FurnaceConfigView(APIView):
         # print(request.data,"data in post furnace ")
         electrode_data_json=data.pop('electrodes')
         product_data_json=data.pop('products')
-        # serializer = FurnaceConfigSerializer(data=request.data)
         key_mappings = {
         'type': 'type_name',
         'core': 'core_id',
@@ -69,12 +61,8 @@ class FurnaceConfigView(APIView):
                 product_code = product['productCode']['value']
                 new_item = {'product_state_id': product_state, 'product_type_id': product_type, 'product_code': product_code}
                 new_product_data_json.append(new_item)
-        # print(new_product_data_json,'new_product_data_json')
-        # print(new_electrode_data_json,'new_electrode_data_json')
-        # if serializer.is_valid():
         workshop_id=data.pop('workshop',None)
         furnace_config=plant_model.FurnaceConfig.objects.create(workshop_id=workshop_id,**data)
-            # furnace_config = serializer.save(power_delivery_id=request.data['power_delivery_id'],electrode_type_)
         for electrode_data_json in new_electrode_data_json:
             data_json = {}
             for key,value in electrode_data_json.items():
@@ -84,7 +72,6 @@ class FurnaceConfigView(APIView):
             FurnaceProduct.objects.create(furnace_config=furnace_config,**furnace_product,created_by=1)
         return Response({"message":"Furnace added Successfully","id":furnace_config.id}, status=status.HTTP_201_CREATED)
 
-        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     def put(self, request, pk=None, *args, **kwargs):
         data=request.data
         furnace_electrode_data=data.pop('electrodes')
@@ -111,11 +98,11 @@ class FurnaceConfigView(APIView):
             
             product_state = item['productState']['value']
             for product in item['products']:
-                id = product.get('id', None)
+                product_id = product.get('id', None)
                 product_type = product['productType']['value']
                 product_code = product['productCode']['value']
                 record_status = product.get('record_status', True)
-                new_item = {'id':id,'product_state_id': product_state, 'product_type_id': product_type, 'product_code': product_code, 'record_status':record_status}
+                new_item = {'id':product_id,'product_state_id': product_state, 'product_type_id': product_type, 'product_code': product_code, 'record_status':record_status}
                 new_product_data_json.append(new_item)
 
         if serializer.is_valid():
