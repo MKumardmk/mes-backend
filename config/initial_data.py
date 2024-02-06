@@ -5,8 +5,8 @@ from rest_framework.views import APIView
 from mes.users.models import User,Role,RolePermission
 from rest_framework import status
 from mes.users import serializers as se
-from mes.plant.models import Plant,PlantConfig,PlantConfigFunction,PlantConfigProduct,PlantConfigWorkshop
 from mes.utils.models import Master,Module,Function
+from mes.unit.models import GlobalUnit
 module_data=[
     'User Access Control',
     'Master Data',
@@ -87,7 +87,7 @@ master=[
     ('AI',    '3300001 - Aluminum'),
     ('LIME',  '3301824 - Dolomite Quicklime Fines' ),
     ('SLAG',  'D020 - Silicon Slag'  ),
-    ('SKULL', '6605124 - Screen Visor Wire Skullgard HAT 8X17-1/2'   ),
+    ('SKULL', '6605124 - Screen Visor Wire Skullgard HAT 8X17-1/2'),
     ('CORE',  '3300300 - Electrode 1146mm Yonvey'),
     ('PASTE', '3300300 - Electrode 1146mm Yonvey'),
     ('CASING',    '3300300 - Electrode 1146mm Yonvey'),
@@ -111,10 +111,107 @@ master=[
     ('STEPS', 'Purge')
  
 ]
-   
+
+
+units=[
+    {
+        "name":"Temp",
+        "imperial":"⁰ F",
+        "metric":"⁰C"
+    },
+    {
+        "name":"Time",
+        "imperial":"mins",
+        "metric":"mins"
+    },
+    {
+        "name":"O2 Flow",
+        "imperial":"mins",
+        "metric":"mins"
+    },
+    {
+        "name":"Air Flow",
+        "imperial":"mins",
+        "metric":"mins"
+    },
+    {
+        "name":"N Flow",
+        "imperial":"mins",
+        "metric":"mins"
+    },
+    {
+       "name":" O2 Pressure",
+        "imperial":"psi",
+        "metric":"Pa"
+    },
+    {
+        "name":"Air Pressure",
+        "imperial":"psi",
+        "metric":"Pa"
+    },
+    {
+        "name": "N Pressure",
+        "imperial":"psi",
+        "metric":"Pa"
+    },
+    {
+        "name":"Paste Mass/Length",
+        "imperial":"lb/in",
+        "metric":"kg/cm"
+    },
+    {
+        "name":"Casing Mass/Length",
+        "imperial":"lb/in",
+        "metric":"kg/cm"
+    },
+    {
+        "name":"Iron Losses",
+        "imperial":"%",
+        "metric":"%"
+    },
+    {
+        "name":"Joule Losses Coefficient",
+        "imperial":"%",
+        "metric":"%"
+    },
+    {
+        "name":"Default EPI Index",
+        "imperial":"%",
+        "metric":"%"
+    },
+    {
+        "name":"Corrected Reactance Coefficient",
+        "imperial":"%",
+        "metric":"%"
+    },
+    {
+        "name":"Design MW",
+         "imperial":"hp",
+        "metric":"MW"
+    },
+    {
+        "name":"Silicon FC",
+        "imperial":"%",
+        "metric":"%"
+    },
+    {
+        "name":"K SIC",
+        "imperial":"%",
+        "metric":"%"
+    },
+    {
+        "name":"Shell Losses",
+        "imperial":"%",
+        "metric":"%"
+    }
+]
 class CreateSuperUserView(APIView):
     def post(self,request):
         data=request.data
+        for item in units:
+            g_unit=GlobalUnit.objects.filter(name=item.get('name'))
+            if not g_unit.exists():
+                GlobalUnit.objects.create(**item)
         serializer=se.CreateSuperAdminUserSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             data=serializer.data

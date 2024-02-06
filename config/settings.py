@@ -44,6 +44,7 @@ LOCAL_APPS=[
     'mes.plant',
     'mes.utils',
     'mes.furnace',
+    'mes.unit',
 
 ]
 

@@ -31,17 +31,14 @@ class SimpleUserLoginView(APIView):
         password= data.get("password",'')
         if not username or not password:
             return Response({"message": "Username or password is empty"}, status=status.HTTP_400_BAD_REQUEST)
-        user=account_model.User.objects.filter(username__iexact=username).first()
-        try:
-            user=authenticate(request=request,username=user.username,password=password)
-        except:user=None
-        print(user,"useralskdfj;lk")
+        check_user=account_model.User.objects.filter(username__iexact=username).first()
+        user=authenticate(request=request,username=username,password=password)
         if user:
             if  user.is_delete:
                 response["message"] = "User is deactivated. Please contact admin"
                 status_code = status.HTTP_400_BAD_REQUEST
                 return Response(response, status=status_code)
-            token, created = Token.objects.get_or_create(user=user)
+            token, _ = Token.objects.get_or_create(user=user)
             
             status_code = status.HTTP_200_OK
             response["token"] = token.key
@@ -57,7 +54,7 @@ class SimpleUserLoginView(APIView):
             }
             response['plant']=plant_data
             return Response(response, status=status_code)
-        elif not user:
+        elif  check_user is None:
             return Response({"message":"User Not Found"})
         else:
             return Response({"message": "Password is not correct"}, status=status.HTTP_404_NOT_FOUND)
