@@ -44,7 +44,6 @@ LOCAL_APPS=[
     'mes.plant',
     'mes.utils',
     'mes.furnace',
-    'mes.unit',
 
 ]
 
@@ -97,15 +96,14 @@ WSGI_APPLICATION = 'config.wsgi.application'
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mes-dev-db',
-        'USER': 'postgres',
-        'PASSWORD': 'Test@123',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': 'mes',
+        'USER': 'globev',
+        'PASSWORD': 'globev',
+        'HOST': '72.181.13.50',
+        'PORT': '5435',
     }
 }
 
