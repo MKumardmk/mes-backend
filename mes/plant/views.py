@@ -1,13 +1,11 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
+from rest_framework import status 
 from rest_framework.views import APIView
 from .models import TimeZone,Language,Unit,Currency,Product,Function,ERP,PlantConfig,PlantConfigProduct,PlantConfigWorkshop,PlantConfigFunction
 from mes.furnace.models import FurnaceConfig,FurnaceConfigStep,FurnaceElectrode,FurnaceProduct,ControlParameter,Additive
 from .serializers import ERPSerializer,PlantConfigSerializer,FurnaceConfigSerializer
-from rest_framework import status ,viewsets ,generics 
-import json
-from datetime import datetime
 from django.http import Http404
 from django.shortcuts import get_object_or_404    
 from . import serializers as se 
@@ -16,13 +14,13 @@ from django.db.models import Q
 from mes.utils.models  import Module
 from .utils import set_first_user_permissions
 from mes.utils.serializers import ModuleSerializer
+
+
 @api_view(["GET"])
 @permission_classes((AllowAny,))
 def time_zone_list(request):
     if request.method == "GET":
-        # res = TimeZone.time_zone_procedure('TIMEZONE')
         res = TimeZone.get_time_zone('TIMEZONE')
-        # serializer = TimeZoneSerializer(res, many = True)
         return Response(res)
     
 
@@ -31,7 +29,6 @@ def time_zone_list(request):
 def language_list(request):
     if request.method == "GET":
         res = Language.language_procedure('LANGUAGE')
-        # serializer = LanguageSerializer(res, many = True)
         return Response(res)
     
 
@@ -40,7 +37,6 @@ def language_list(request):
 def unit_list(request):
     if request.method == "GET":
         res = Unit.unit_procedure('UNITSYSTEM')
-        # serializer = UnitSerializer(res, many = True)
         return Response(res)
     
 
@@ -49,7 +45,6 @@ def unit_list(request):
 def currency_list(request):
     if request.method == "GET":
         res = Currency.currency_procedure('CURRENCY')
-        # serializer = CurrencySerializer(res, many = True)
         return Response(res)
     
 
@@ -58,7 +53,6 @@ def currency_list(request):
 def product_list(request):
     if request.method == "GET":
         res = Product.Product_procedure('PRODUCT')
-        # serializer = ProductSerializer(res, many = True)
         return Response(res)
     
 
@@ -67,7 +61,6 @@ def product_list(request):
 def function_list(request):
     if request.method == "GET":
         res = Function.function_procedure()
-        # serializer = FunctionSerializer(res, many = True)
         return Response(res)
 class FunctionListView(APIView):
     def get(self,request,):
@@ -83,81 +76,6 @@ def erp_list(request):
         serializer = ERPSerializer(res, many = True)
         return Response(serializer.data)
     
-@api_view(["GET"])
-@permission_classes((AllowAny,))
-def plant_config_get(request):
-    if request.method == "GET":
-        print("calld get")
-        res = PlantConfig.plant_config_get_procedure(1000)
-        # serializer = PlantConfigSerializer(res, many = True)
-        return Response(res)
-
-@api_view(["POST"])
-@permission_classes((AllowAny,))
-def plant_config(request):
-    if request.method == 'POST':
-        data = request.data
-        datas = {
-            'plant_name': data.get('plantName', ''),
-            'area_code': data.get('areaCode', ''),
-            'plant_address': data.get('plantAddress', ''),
-            'timezone_id': data.get('timeZone', ''),
-            'language_id': data.get('language', ''),
-            'unit_id': data.get('unitSystem', ''),
-            'currency_id': data.get('currency', ''),
-            'shift1_from': data.get('shift1', {}).get('from', ''),
-            'shift1_to': data.get('shift1', {}).get('to', ''),
-            'shift2_from': data.get('shift2', {}).get('from', ''),
-            'shift2_to': data.get('shift2', {}).get('to', ''),
-            'shift3_from': data.get('shift3', {}).get('from', ''),
-            'shift3_to': data.get('shift3', {}).get('to', ''),
-            'created_by': '10',
-            'modified_by':  '10',
-            'products_json': data.get('productName', []),
-            'workshops_json': data.get('workshops', []),
-            'function_json': data.get('function',[])
-        }
-
-        serializer = PlantConfigSerializer(data=datas)
-
-        if serializer.is_valid():
-            # Assuming PlantConfig.plant_config_insert_procedure() requires these arguments
-            products_json = json.dumps(datas['products_json'])
-            workshops_json = json.dumps(datas['workshops_json'])
-            function_json = json.dumps(datas['function_json'])
-
-    # Assuming PlantConfig.plant_config_insert_procedure() requires these arguments
-            PlantConfig.plant_config_insert_procedure(
-                1000,
-            datas['plant_name'],
-            datas['area_code'],
-            datas['plant_address'],
-            datas['timezone_id'],
-            datas['language_id'],
-            datas['unit_id'],
-            datas['currency_id'],
-            datetime.strptime(datas['shift1_from'], "%H:%M"),
-            datetime.strptime(datas['shift1_to'], "%H:%M"),
-            datetime.strptime(datas['shift2_from'], "%H:%M"),
-            datetime.strptime(datas['shift2_to'], "%H:%M"),
-            datetime.strptime(datas['shift3_from'], "%H:%M"),
-            datetime.strptime(datas['shift3_to'], "%H:%M"),
-            datas['created_by'],
-            datas['modified_by'],
-            products_json,
-            workshops_json,
-            function_json
-        )
-
-            response_data = {'message': 'Plant configuration successfully processed.'}
-            return Response(response_data, status=status.HTTP_200_OK)
-        else:
-            # Return serializer errors in the response
-            error_data = {'error': 'Invalid data provided.', 'errors': serializer.errors}
-            return Response(error_data, status=status.HTTP_400_BAD_REQUEST)
-
-    # Handle the case when the request method is not POST
-    return Response({'error': 'Invalid request method.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 class PlantConfigView(APIView):
     def get_object(self, pk):
@@ -216,7 +134,7 @@ class PlantConfigView(APIView):
             for plant_product in plant_config_products:
                 pk_plant_product_id = plant_product.pop('id',None)
                 if pk_plant_product_id:
-                    product = PlantConfigProduct.objects.filter(pk=pk_plant_product_id,plant_config=plant_config).update(**plant_product)
+                    PlantConfigProduct.objects.filter(pk=pk_plant_product_id,plant_config=plant_config).update(**plant_product)
                     product = PlantConfigProduct.objects.filter(pk=pk_plant_product_id,plant_config=plant_config).first()
                 else:
                     product = PlantConfigProduct.objects.create(plant_config=plant_config,**plant_product,created_by=1)
@@ -236,7 +154,7 @@ class PlantConfigView(APIView):
             for plant_function in plant_functions:
                 pk_plant_function_id = plant_function.pop('id',None)
                 if pk_plant_function_id:
-                    functions = PlantConfigFunction.objects.filter(pk=pk_plant_function_id,plant_config=plant_config).update(**plant_function)
+                    PlantConfigFunction.objects.filter(pk=pk_plant_function_id,plant_config=plant_config).update(**plant_function)
                     functions = PlantConfigFunction.objects.filter(pk=pk_plant_function_id,plant_config=plant_config).first()
                 else:
                     functions = plant_model.PlantConfigFunction.objects.create(plant_config=plant_config,**plant_function,created_by=1)
@@ -245,7 +163,7 @@ class PlantConfigView(APIView):
 
             plant_model.PlantConfigProduct.objects.filter(plant_config=plant_config).exclude(id__in=plant_product_ids).delete()
             plant_model.PlantConfigFunction.objects.filter(plant_config=plant_config).exclude(id__in=plant_function_ids).delete()
-            set_first_user_permissions(plant_config,is_edit=True)
+            set_first_user_permissions(plant_config,)
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -285,7 +203,6 @@ class FurnaceConfigView(APIView):
         # print(request.data,"data in post furnace ")
         electrode_data_json=data.pop('electrodes')
         product_data_json=data.pop('products')
-        # serializer = FurnaceConfigSerializer(data=request.data)
         key_mappings = {
         'type': 'type_name',
         'core': 'core_id',
@@ -307,12 +224,8 @@ class FurnaceConfigView(APIView):
                 product_code = product['productCode']['value']
                 new_item = {'product_state_id': product_state, 'product_type_id': product_type, 'product_code': product_code}
                 new_product_data_json.append(new_item)
-        # print(new_product_data_json,'new_product_data_json')
-        # print(new_electrode_data_json,'new_electrode_data_json')
-        # if serializer.is_valid():
         workshop_id=data.pop('workshop',None)
         furnace_config=FurnaceConfig.objects.create(workshop_id=workshop_id,**data)
-            # furnace_config = serializer.save(power_delivery_id=request.data['power_delivery_id'],electrode_type_)
         for electrode_data_json in new_electrode_data_json:
             data_json = {}
             for key,value in electrode_data_json.items():
@@ -322,7 +235,6 @@ class FurnaceConfigView(APIView):
             FurnaceProduct.objects.create(furnace_config=furnace_config,**furnace_product,created_by=1)
         return Response({"message":"Furnace added Successfully","id":furnace_config.id}, status=status.HTTP_201_CREATED)
 
-        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     def put(self, request, pk=None, *args, **kwargs):
         data=request.data
         furnace_electrode_data=data.pop('electrodes')
@@ -350,11 +262,11 @@ class FurnaceConfigView(APIView):
             
             product_state = item['productState']['value']
             for product in item['products']:
-                id = product.get('id', None)
+                product_id = product.get('id', None)
                 product_type = product['productType']['value']
                 product_code = product['productCode']['value']
                 record_status = product.get('record_status', True)
-                new_item = {'id':id,'product_state_id': product_state, 'product_type_id': product_type, 'product_code': product_code, 'record_status':record_status}
+                new_item = {'id':product_id,'product_state_id': product_state, 'product_type_id': product_type, 'product_code': product_code, 'record_status':record_status}
                 new_product_data_json.append(new_item)
 
         if serializer.is_valid():
@@ -377,8 +289,6 @@ class FurnaceConfigView(APIView):
         print(furnace_config,"plant config")
         furnace_config.delete()
         return Response({"message": "Plant config deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
-    
-
 
 class FurnaceDeactivateView(APIView):
     def post(self,request,pk=None):
@@ -392,7 +302,6 @@ class FurnaceConfigStepListAPIView(APIView):
     def post(self,request,furnace_id=None):
         print("called inside post inFurnaceConfigStepListAPIView ",request.data)
         data=request.data.get('step_data')
-        # furnace_id = self.kwargs.get('furnace_id')
 
         output_data = []
 
@@ -472,12 +381,11 @@ class FurnaceConfigStepListAPIView(APIView):
         for index,item in enumerate(output_data,start=1):
             pk_id = item.get('id', None)
             print("item",item,pk_id)
-            #   order = item.pop('order', 0)
             control_parameters=  item.pop('control_parameters', [])
             additives_data=item.pop('additives', [])
             print(type(pk_id))
             if pk_id:
-                furnace_config_step = FurnaceConfigStep.objects.filter(Q(pk=pk_id), furnace_id=furnace_id).update( **item)
+                FurnaceConfigStep.objects.filter(Q(pk=pk_id), furnace_id=furnace_id).update( **item)
                 furnace_config_step= FurnaceConfigStep.objects.filter(pk=pk_id).first()
             else:
                 furnace_config_step = FurnaceConfigStep.objects.create(furnace_id=furnace_id,**item)
@@ -490,21 +398,21 @@ class FurnaceConfigStepListAPIView(APIView):
 
             for control_param_data in control_parameters:
                 
-                id=control_param_data.pop('id', None)
+                pk=control_param_data.pop('id', None)
 
                 print("control_param_data",control_param_data)
                 
-                if id:
-                    ControlParameter.objects.filter(furnace_config_step=furnace_config_step, pk=id).update(**control_param_data)
+                if pk:
+                    ControlParameter.objects.filter(furnace_config_step=furnace_config_step, pk=pk).update(**control_param_data)
                 else:
                     ControlParameter.objects.create(furnace_config_step=furnace_config_step, **control_param_data)
             for additive_data in additives_data:
                 print(type(furnace_config_step))
                 
-                id=additive_data.pop('id',None)
+                pk=additive_data.pop('id',None)
                 
-                if id:
-                    Additive.objects.filter(furnace_config_step=furnace_config_step,pk=id).update(**additive_data)
+                if pk:
+                    Additive.objects.filter(furnace_config_step=furnace_config_step,pk=pk).update(**additive_data)
                 else:
                     Additive.objects.create(furnace_config_step=furnace_config_step, **additive_data)
         print(ids,"ids in put")
@@ -517,102 +425,10 @@ class FurnaceConfigStepListAPIView(APIView):
         except AttributeError :
             pass
         return Response({"message":"Item Deleted SuccessFully",})
-# class FurnaceConfigStepListAPIView(generics.ListCreateAPIView):
-#     serializer_class = se.FurnaceConfigStepSerializer
-
-#     def create(self, request, *args, **kwargs):
-#         furnace_id = self.kwargs.get('furnace_id')
-#         request.data['furnace']=furnace_id
-#         data=request.data['step_data']
-#         # for item in data:
-#         serializer = self.get_serializer(data=request.data, context={'request': request})
-#         serializer.is_valid(raise_exception=True)
-#         self.perform_create(serializer)
-#         headers = self.get_success_headers(serializer.data)
-#         return Response({"message":"Furnace Details added Successfully"}, status=201, headers=headers)
-#     def get_queryset(self):
-#         furnace_id = self.kwargs.get('furnace_id')
-#         queryset = plant_model.FurnaceConfigStep.objects.filter(furnace_id=furnace_id)
-#         return queryset
-    
-# class FurnaceConfigStepDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
-#     queryset = plant_model.FurnaceConfigStep.objects.all()
-#     serializer_class = se.FurnaceConfigStepSerializer
-#     permission_classes= [AllowAny]
-
-#     def destroy(self, request, *args, **kwargs):
-#         instance = self.get_object()
-#         self.perform_destroy(instance)
-#         return Response({"message": "Item delete SuccessFully"}, status=status.HTTP_204_NO_CONTENT)
 
 class FurnaceConfigChangeOrder(APIView):
     def post(self,request):
         data=request.data.get('data',[])
         for item in data:
-            furnace_step=FurnaceConfigStep.objects.filter(pk=item.pop("id")).update(**item)
+            FurnaceConfigStep.objects.filter(pk=item.pop("id")).update(**item)
         return Response({"message":"Furnace Config Updated Successfully"})
-
-
-@api_view(["PUT"])
-@permission_classes((AllowAny,))
-def plant_config_update(request):
-    if request.method == 'PUT':
-        try:
-            plant_instance = PlantConfig.plant_config_get_procedure(1000)
-        except PlantConfig.DoesNotExist:
-            return Response({"error": "Plant not found"}, status=status.HTTP_404_NOT_FOUND)
-        data = request.data
-        
-        datas = {
-            'plant_name': data.get('plantName', ''),
-            'area_code': data.get('areaCode', ''),
-            'plant_address': data.get('plantAddress', ''),
-            'timezone_id': data.get('timeZone', ''),
-            'language_id': data.get('language', ''),
-            'unit_id': data.get('unitSystem', ''),
-            'currency_id': data.get('currency', ''),
-            'shift1_from': data.get('shift1', {}).get('from', ''),
-            'shift1_to': data.get('shift1', {}).get('to', ''),
-            'shift2_from': data.get('shift2', {}).get('from', ''),
-            'shift2_to': data.get('shift2', {}).get('to', ''),
-            'shift3_from': data.get('shift3', {}).get('from', ''),
-            'shift3_to': data.get('shift3', {}).get('to', ''),
-            'created_by': '10',
-            'modified_by':  '10',
-            'products_json': data.get('productName', []),
-            'workshops_json': data.get('workshops', []),
-            'function_json': data.get('function',[])
-        }
-        
-        serializer = PlantConfigSerializer(data=datas)
-
-        if serializer.is_valid():
-              # Assuming PlantConfig.plant_config_insert_procedure() requires these arguments
-            products_json = json.dumps(datas['products_json'])
-            workshops_json = json.dumps(datas['workshops_json'])
-            function_json = json.dumps(datas['function_json'])
-
-    # Assuming PlantConfig.plant_config_insert_procedure() requires these arguments
-            PlantConfig.plant_config_update_procedure(
-                1000,
-            datas['plant_address'],
-            datas['language_id'],
-            datetime.strptime(datas['shift1_from'], "%H:%M"),
-            datetime.strptime(datas['shift1_to'], "%H:%M"),
-            datetime.strptime(datas['shift2_from'], "%H:%M"),
-            datetime.strptime(datas['shift2_to'], "%H:%M"),
-            datetime.strptime(datas['shift3_from'], "%H:%M"),
-            datetime.strptime(datas['shift3_to'], "%H:%M"),
-            datas['modified_by'],
-            products_json,
-            workshops_json,
-            function_json
-            )
-
-            response_data = {'message': 'Plant configuration modified successfully.'}
-            return Response(response_data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    else:
-        return Response({"error": "Unsupported method"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
-        
-    

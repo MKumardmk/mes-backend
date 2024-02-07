@@ -23,8 +23,11 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault("is_superuser", False)
         user=self.model(username=username,**extra_fields)
         user.username = username
-        user.set_password(password)
-        print(password,"password in modeils")
+        if password:
+            user.set_password(password)
+            print(password,"password in modeils")
+        else:
+            user.set_unusable_password()
         user.save(using=self._db)
         user.roles.set(roles)
         return user
@@ -78,6 +81,11 @@ class User(AbstractBaseUser):
     REQUIRED_FIELDS = ["first_name", "last_name"]   
 
     objects=UserManager()
+    def has_perm(self, perm, obj=None):
+        return self.is_superuser
+
+    def has_module_perms(self, app_label):
+        return self.is_superuser
 
 
 # class PlantUser(models.Model):

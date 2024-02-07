@@ -39,10 +39,6 @@ class PlantConfigProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = PlantConfigProduct
         fields = '__all__'
-    # def to_internal_value(self, data):
-    #     # data['created_by'] = self.context['request'].user
-    #     data['created_by'] = self.context['request'].user
-    #     return super().to_internal_value(data)
 
 class PlantConfigWorkshopSerializer(serializers.ModelSerializer):
     is_deactivate=serializers.SerializerMethodField()
@@ -75,45 +71,11 @@ class PlantConfigSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         plant_config= PlantConfig.objects.create(**validated_data)
         return plant_config
-    
-    # def update(self, instance, validated_data):
-        # plant_config_products=validated_data.pop('')
-        # plant_config_workshops=validated_data.pop('')
-        # for plant_config_product in plant_config_products:
-        #     id = plant_config_product.get('id',None)
-        #     if id:
-        #         config_product=PlantConfigProduct.objects.get(pk=id)
-        #         config_product.plant_config=instance
-        #         config_product.save()
-
-        # for plant_config_workshop in plant_config_workshops:
-        #     id = plant_config_workshop.get('id',None)
-        #     if id:
-        #         config_work_shop=PlantConfigWorkshop.objects.get(pk=id)
-        #         config_work_shop.plant_config=instance
-                # config_work_shop.save()
-        # instance.save()
-        # return instance
-    
-
-
-
 
 class ERPSerializer(serializers.ModelSerializer):
     class Meta:
         model = ERP
         fields = '__all__'
-
-
-
-
-
-
-
-# class PlantFunctionMasterSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = PlantFunctionMaster
-#         fields = '__all__'
 
 
 class FurnaceElectrodeSerializer(serializers.ModelSerializer):
@@ -146,7 +108,6 @@ class FurnaceElectrodeSerializer(serializers.ModelSerializer):
 class FurnaceProductSerializer(serializers.ModelSerializer):
     product_state_value =serializers.SerializerMethodField(read_only=True) 
     product_type_value =serializers.SerializerMethodField(read_only=True) 
-    # product_type = MasterSerializer(read_only=True,many=True,source="master_furnace_product_type")  
     product_type=serializers.SerializerMethodField(read_only=True)
     product_state=serializers.SerializerMethodField(read_only=True)
     class Meta:
@@ -181,21 +142,6 @@ class FurnaceConfigStepSerializer(serializers.ModelSerializer):
     class Meta:
         model = FurnaceConfigStep
         fields = '__all__'
-    def create(self, validated_data):
-        data = self.context.get('request').data.get('step_data',[])
-        print(data)
-        # print(data,"daasdfasd;lfkj")
-        # control_parameters_data = data.get('control_parameters', [])
-        # additives_data = data.get('additives', [])
-        # furnace_data=data.get('step_data',[])
-
-        # furnace_config_step = m.FurnaceConfigStep.objects.create(furnace_data)
-        # for control_param_data in control_parameters_data:
-        #     m.ControlParameter.objects.create(furnace_config_step=furnace_config_step, **control_param_data)
-        # for additive_data in additives_data:
-        #     m.Additives.objects.create(furnace_config_step=furnace_config_step, **additive_data)
-        # return furnace_config_step
-        return ""
 
 
 class FurnaceConfigSerializer(serializers.ModelSerializer):
@@ -203,8 +149,6 @@ class FurnaceConfigSerializer(serializers.ModelSerializer):
     furnace_electrodes=FurnaceElectrodeSerializer(many=True,read_only=True,source="furnace_config_electrodes")
     step2=FurnaceConfigStepSerializer(many=True,read_only=True,source="furnace_config_step")
     workshop_value=serializers.SerializerMethodField(read_only=True)
-    # power_delivery=serializers.SerializerMethodField(read_only=True,source="furnace_master_power_delivery")
-    # power_delivery_value=serializers.SerializerMethodField(read_only=True)
     
     class Meta:
         model = FurnaceConfig
@@ -212,10 +156,6 @@ class FurnaceConfigSerializer(serializers.ModelSerializer):
     def get_workshop_value(self,obj):
         print(obj,"work shop value in serializer")
         return obj.workshop.workshop_name
-    # def get_power_delivery(self,obj):
-    #     return obj.power_delivery.id
-    # def get_power_delivery_value(self,obj):
-    #     return obj.power_delivery.value
     
 
     def create(self, validated_data):
